@@ -1,0 +1,6 @@
+# ignore CMSSW directories
+
+CMSSW*/
+
+# ignore submision files related directories
+JobSub/

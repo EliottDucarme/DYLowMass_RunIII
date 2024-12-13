@@ -1,0 +1,3 @@
+ERROR: Invalid CRAB type '/ada_mnt/ada/user/educarme/Run3/Skim/JobSub/DY_2022_Run50.sh' provided, valid values are prod, pre and dev.
+Usage: /bin/bash [prod|pre|dev]
+Hello World, I run on the cluster !
