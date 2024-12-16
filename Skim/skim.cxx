@@ -72,7 +72,7 @@ void Cut(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager, void> d, std::st
     std::cout << "hello !" << std::endl;  
     
     d1.Snapshot("Events", "output.root",   
-        "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$|^L1_DoubleMu.*$");
+        "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$|^L1_DoubleMu.*$|^DST.*$");
     d1.Report()->Print();
 
   //  std::string out = "rsync -aP output.root " + output;
