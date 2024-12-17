@@ -37,14 +37,14 @@ year=$2
 era=$3
 folder=$4
 
-# Check if dataset name is correct and set the channel variable to be used later                                                    
-# Use photon channel for the moment
+# Check if dataset name is correct 
 if ! [[ "$dataset" =~ ^(Data|DY|QCD) ]]
 then                                                                                     
     echo
     echo -e "${RED}Error : Invalid Dataset name!${NC}"                                                       
     Help
-    exit 1                                                                              
+    exit 1   
+fi                                                                           
     
 # Check if year is correct
 if ! [[ "$year" =~ ^(2022) ]]; then
@@ -81,18 +81,20 @@ elif [[ $year == 2022 && $dataset == "QCD" ]]; then
    fi
 fi
 
-isData=true
 # The output directory in personal pnfs store area
-# Check if it's Data or MC
 if [[ $dataset == "QCD" ]]; then
-   isData=false
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/PT-${era}/${folder} 
-fi
 elif [[ $dataset == "DY" ]]; then
-   isData=false
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/M-${era}/${folder}
-else
+elif [[ $dataset == "Data" ]]; then
   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}_${era}/${folder}
+else
+  echo
+  echo -e "${RED}Dataset is invalid !${NC}"
+  echo -e "${RED}Use Data, QCD or DY${NC}"
+  echo
+  Help
+  exit 1
 fi
 
 if [ ! -d $output ] 
@@ -106,15 +108,15 @@ else
 fi
 
 # Running on NANOAOD or JME custom NANOAOD based on the last argument
-if [[ "$isData" == true ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON/*/0000/*71.root" # Small subset of files
-  # files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON/*/*/*.root"      # All files
+if [[ "$dataset" == "Data" ]]; then
+  # files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON/*/0000/*71.root" # Small subset of files
+  files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON/*/*/*.root"      # All files
 # MC
-elif [[ "$isData" == false && $dataset == "QCD" ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"      # All files
-elif [[ "$isData" == false && $dataset == "DY" ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root" # Small subset of files
-  #  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC{$year}_v01/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root" 
+elif [[ $dataset == "QCD" ]]; then
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/tree_*.root"      # All files
+elif [[ $dataset == "DY" ]]; then
+  # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root" # Small subset of files
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root" 
 fi
 
 # Modify the template scripts and store the submitted files in the submission directory

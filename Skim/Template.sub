@@ -7,8 +7,8 @@ executable            		= exe.sh
 #############################################  
 # Definition of output, error and log files # 
 #############################################
-output                		= output/$(ClusterId)$(ProcId).out
-error                 		= error/$(ClusterId)$(ProcId).err
+output                		= output/$(ClusterId).$(ProcId).out
+error                 		= error/$(ClusterId).$(ProcId).err
 log                   		= log/$(ClusterId).log
 
 ################################################################################
@@ -22,7 +22,7 @@ transfer_input_files            = $(filename)
 # $1 = $filename = for the input file (as explained above)                   #                                          
 # $2 = "PATH_TO_OUTPUT" will be modified from the SubmitToHTCondor.sh script #
 ##############################################################################
-arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ClusterId)$(ProcId).root
+arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ClusterId).$(ProcId).root
 
 ###########################################################
 # Output files to the submit machine (Default is ON_EXIT) #
