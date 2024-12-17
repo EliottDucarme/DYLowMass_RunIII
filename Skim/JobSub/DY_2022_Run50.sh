@@ -1,1 +1,0 @@
-echo "Hello World, I run on the cluster !"
