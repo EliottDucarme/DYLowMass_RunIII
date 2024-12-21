@@ -1,0 +1,15 @@
+{
+  "samples": {
+    "Data" :
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/Data_G/initial/Data_G.root"],
+      "metadata":
+      {
+        "xsec" : 1.0,
+        "sumws" : 1.0,
+        "type" : "Data"
+      }
+    }
+  }
+}

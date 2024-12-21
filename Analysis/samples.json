@@ -1,0 +1,180 @@
+{
+  "samples": {
+    "MC_DY_10To50": {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/initial/DY_M-10to50.root"],
+      "metadata":{
+        "xsec" : 20950.0,
+        "sumws" : 1747840.0,
+        "type" : "MC_DY"
+      }
+    },
+
+    "MC_DY50ToInf": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/initial/DY_M-50.root"],
+      "metadata":
+      {
+        "xsec" : 6688.0,
+        "sumws" : 23879576.0,
+        "type" : "MC_DY"
+      }
+    },
+    
+    "MC_QCD_PT-15To20": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-15to20/initial/QCD_PT-15to20.root"],
+      "metadata":
+      {
+        "xsec" : 2960000.0,
+        "sumws" : 75886.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-20To30": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-20to30/initial/QCD_PT-20to30.root"],
+      "metadata":
+      {
+        "xsec" : 2679000.0,
+        "sumws" : 703676.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-30T50": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-30to50/initial/QCD_PT-30to50.root"],
+      "metadata":
+      {
+        "xsec" : 1497000.0,
+        "sumws" : 835089.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-50To80": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-50to80/initial/QCD_PT-50to80.root"],
+      "metadata":
+      {
+        "xsec" : 376600.0,
+        "sumws" : 391685.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-80To120": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-80to120/initial/QCD_PT-80to120.root"],
+      "metadata":
+      {
+        "xsec" : 88930.0,
+        "sumws" : 1176030.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-120To170": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-120to170/initial/QCD_PT-120to170.root"],
+      "metadata":
+      {
+        "xsec" : 22980.0,
+        "sumws" : 1210487.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-170To300": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-170to300/initial/QCD_PT-170to300.root"],
+      "metadata":
+      {
+        "xsec" :  7763.0,
+        "sumws" : 1894679.0,
+        "type" : "MC_QCD"
+      }
+    },
+    "MC_QCD_PT-300To470": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-300to470/initial/QCD_PT-300to470.root"],
+      "metadata":
+      {
+        "xsec" : 699.1,
+        "sumws" : 2542029.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+
+    "MC_QCD_PT-470To600": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-470to600/initial/QCD_PT-470to600.root"],
+      "metadata":
+      {
+        "xsec" : 68.24,
+        "sumws" : 2252446.0,
+        "type" : "MC_QCD"
+      }
+    },
+    "MC_QCD_PT-600To800": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-600to800/initial/QCD_PT-600to800.root"],
+      "metadata":
+      {
+        "xsec" : 21.37	,
+        "sumws" : 2573260.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "MC_QCD_PT-800To1000": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-800to1000/initial/QCD_PT-800to1000.root"],
+      "metadata":
+      {
+        "xsec" : 3.913,
+        "sumws" : 5165923.0,
+        "type" : "MC_QCD"
+      }
+    }, 
+    
+    "MC_QCD_PT-1000": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/QCD/PT-1000/initial/QCD_PT-1000.root"],
+      "metadata":
+      {
+        "xsec" : 1.323,
+        "sumws" : 622718.0,
+        "type" : "MC_QCD"
+      }
+    },
+
+    "Data" :
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/Data_G_0/initial/Data_G_0.root"],
+      "metadata":
+      {
+        "xsec" : 1.0,
+        "sumws" : 1.0,
+        "type" : "Data"
+      }
+    }
+  }
+}
