@@ -2,8 +2,15 @@
 CMSSW*/
 
 # ignore submision files related directories
-Skim/JobSub/*
+Skim/JobSub/
 Skim/skim
 
 # ignore big files
 *.root
+
+# igore images 
+*.png
+*.pdf
+
+# ignore vscode related files
+.vscode/
