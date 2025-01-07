@@ -16,13 +16,13 @@ log                   		= log/$(ClusterId).log
 # $filename is assigned the value of one of the file names for each job queued #
 ################################################################################
 transfer_input_files            = $(filename)
-
+ 
 ##############################################################################
 # Arguments for the executable script                                        #
 # $1 = $filename = for the input file (as explained above)                   #                                          
 # $2 = "PATH_TO_OUTPUT" will be modified from the SubmitToHTCondor.sh script #
 ##############################################################################
-arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ClusterId).$(ProcId).root
+arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ClusterId).$(ProcId).root $(dataset)
 
 ###########################################################
 # Output files to the submit machine (Default is ON_EXIT) #

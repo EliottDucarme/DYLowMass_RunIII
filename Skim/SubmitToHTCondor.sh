@@ -35,7 +35,8 @@ Help(){
 dataset=$1
 year=$2
 era=$3
-folder=$4
+folder=$5
+part=$4
 
 # Check if dataset name is correct 
 if ! [[ "$dataset" =~ ^(Data|DY|QCD) ]]
@@ -87,7 +88,7 @@ if [[ $dataset == "QCD" ]]; then
 elif [[ $dataset == "DY" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/M-${era}/${folder}
 elif [[ $dataset == "Data" ]]; then
-  output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}_${era}/${folder}
+  output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}_${era}_${part}/${folder}
 else
   echo
   echo -e "${RED}Dataset is invalid !${NC}"
@@ -109,14 +110,14 @@ fi
 
 # Running on NANOAOD or JME custom NANOAOD based on the last argument
 if [[ "$dataset" == "Data" ]]; then
-  # files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON/*/0000/*71.root" # Small subset of files
-  files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON/*/*/*.root"      # All files
+  # files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON_${part}/*/0000/*71.root"    # Small subset of files
+  files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON_${part}/*/*/*.root"       # All files
 # MC
 elif [[ $dataset == "QCD" ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/tree_*.root"      # All files
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"              # All files
 elif [[ $dataset == "DY" ]]; then
-  # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root" # Small subset of files
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v01/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root" 
+  # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root"  # Small subset of files
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root"         # All files
 fi
 
 # Modify the template scripts and store the submitted files in the submission directory
@@ -129,13 +130,7 @@ newexe="$dataset"_"$year"_Run"$era".sh
 newsub="$dataset"_"$year"_Run"$era".sub
 
 # New executable script
-sed 's@SUBPATH@'$subpath'@g' $tmpexe > $newexe     # submission path as set above
-sed -i 's@CHANNEL@'$channel'@g' $newexe            # channel as set above
-sed -i 's@YEAR@'$year'@g' $newexe                  # year as set above
-sed -i 's@ERA@'$era'@g' $newexe                    # era as set above
-if [[ "$isData" == false ]]; then
-   sed -i 's@--isData @@g' $newexe                  # Data or MC as set above
-fi
+sed 's@DATASET@'$dataset'@g' $tmpexe > $newexe     # dataset as set above
 chmod 744 $newexe
 
 # New submission script
@@ -166,7 +161,7 @@ if [ ! -d output ]; then
 fi
 
 # Submit the jobs
-condor_submit $newsub
+condor_submit $newsub -batch-name "${dataset}_${year}_${era}_${part}"
 
 # Print sumbission information
 echo
