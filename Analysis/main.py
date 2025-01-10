@@ -4,10 +4,11 @@ ROOT.gROOT.SetBatch(True)
 import sys
 import os
 
-# lumi is defined in 
+from helper import *
+
 
 # Declaration of ranges for each histogram type
-default_nbins = 100
+default_nbins = 25
 ranges = {
   "diPt" : ("ScoutingMuon_diPt", default_nbins, 0.0, 100.0),
   "diMass" : ("ScoutingMuon_diMass", default_nbins, 10.0, 110.0),
@@ -20,7 +21,7 @@ ranges = {
   "sub_eta" : ("subeta", default_nbins, -2.5, 2.5),
   "lead_phi" : ("leadphi",default_nbins, -3.15, 3.15),
   "sub_phi" : ("subphi",default_nbins, -3.15, 3.15),
-  "dimassQCDscale" :("ScoutingMuon_diMass", 1, 12, 110),
+  "dimassQCDscale" :("ScoutingMuon_diMass", 1, 12, 40),
   "dimassDYscale" : ("ScoutingMuon_diMass", 1, 86, 96),
   "HCalIsolation" : ("ScoutingMuon_hcalIso", 15, -5.0, 10),
   "ECalIsolation" : ("ScoutingMuon_ecalIso", 15, -5.0, 10),
@@ -29,7 +30,10 @@ ranges = {
   "Pixel_Hit" : ("ScoutingMuon_nPixelLayersWithMeasurement", 10, 0, 10),
   "Tracker_Hit" : ("ScoutingMuon_nTrackerLayersWithMeasurement", 18, 0, 18),
   "MuonChamber_Hit" : ("ScoutingMuon_nRecoMuonChambers", 50, 0, 51),
-  "MatchedStation" : ("ScoutingMuon_nRecoMuonMatchedStations", 5, 0, 5)
+  "MatchedStation" : ("ScoutingMuon_nRecoMuonMatchedStations", 5, 0, 5),
+  "relTrkIso" : ("rTrkIso", default_nbins, 0, 1),
+  "relHcalIso" : ("rHcalIso", default_nbins, -1, 1),
+  "relEcalIso" : ("rEcalIso", default_nbins, -1, 1),
 }
 
 
@@ -50,59 +54,29 @@ def main():
   # Create the dataframe with the .json spec file
   ROOT.EnableImplicitMT(12)
   d = ROOT.RDF.Experimental.FromSpec("samples.json")
-  ROOT.RDF.Experimental.AddProgressBar(d)
+  d = initializeFromJSON(d)
 
-  # check if sample provided is MC or not and normalize accordingly
-  # lumi is in fb^-1
-  ROOT.gInterpreter.Declare(
-    """
-    double reweighting(double xsec, double sumws, double weight, std::string type){
-       if (type.find("MC") != std::string::npos){
-        double sign = weight/abs(weight);
-        return double(3082.8)*xsec*sign/sumws;
-        } 
-       else return 1.0;
-    }
-    """
-  )
-
-  # Extract indice of the leading muon in pt and the sub-leading
-  ROOT.gInterpreter.Declare(
-    """
-    using namespace ROOT::VecOps;
-    RVec<float> sorting(const RVec<float> sorter){
-      auto sortedIndices = Argsort(sorter);
-      return sortedIndices;
-    }
-    """
-  )
-
-  # 
-
-  # Take info from the spec .json file
-  d = d.DefinePerSample("xsec", 'rdfsampleinfo_.GetD("xsec")')
-  d = d.DefinePerSample("sumws", 'rdfsampleinfo_.GetD("sumws")')
-  d = d.DefinePerSample("type", 'rdfsampleinfo_.GetS("type")')
-
-  # Filter the events
-  d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream")
-  d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
-  # d = d.Filter("dimass > 81 && dimass < 101", "Z peak")
 
   # Define new variables
   d = d.Define("ind", 'sorting(ScoutingMuon_pt)', {"ScoutingMuon_pt"})
   d = d.Define("leadpt", "ScoutingMuon_pt[ind[1]]").Define("subpt", "ScoutingMuon_pt[ind[0]]")
   d = d.Define("leadeta", "ScoutingMuon_eta[ind[1]]").Define("subeta", "ScoutingMuon_eta[ind[0]]")
   d = d.Define("leadphi", "ScoutingMuon_phi[ind[1]]").Define("subphi", "ScoutingMuon_phi[ind[0]]")
-  d = d.Define("rIso", "ScoutingMuon_trackIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_trackIso"})
+  d = d.Define("rTrkIso", "ScoutingMuon_trackIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_trackIso"})
+  d = d.Define("rEcalIso", "ScoutingMuon_ecalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_ecalIso"})
+  d = d.Define("rHcalIso", "ScoutingMuon_hcalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_hcalIso"})
+
+  # Filter the events
+  d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream")
+  d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
+  d = d.Filter("ScoutingMuon_diMass > 76 && ScoutingMuon_diMass < 106", "Z peak")
+  d = d.Filter('leadpt/ScoutingMuon_diMass > 0.45').Filter('subpt/ScoutingMuon_diMass > 0.25', "leptons are decay products of the original boson")
 
   # Separate samples and add them to the sample list
   samples = []
   dD = d.Filter('type == "Data"')
-  dD = dD.Define("norm", "1.0")
   samples.append(("Data", dD))
   dMC = d.Filter('type == "MC_DY" or type == "MC_QCD"')
-  dMC = dMC.Define("norm", 'reweighting(xsec, sumws, genWeight, type)',{"xsec", "sumws", "genWeight", "type"})
   dDY = dMC.Filter('type == "MC_DY"')
   samples.append(("DY", dDY))
   dQCD = dMC.Filter('type == "MC_QCD"')
@@ -114,17 +88,18 @@ def main():
   
   for df_label, df in samples :    
     # Separate isolation type 
-    df_biso  = df.Filter('All(rIso < 0.15)', "Muons are isolated : ")
-    # df_siso  = df.Filter('Any(rIso < 0.15) && Any(rIso >= 0.15)', "One muons is isolated : ")
-    df_niso  = df.Filter('All(rIso >= 0.15)', "Muons are not isolated")
+    df_biso  = df.Filter('All(rTrkIso < 0.15)', "Muons are isolated : ")
+    df_siso  = df.Filter('rTrkIso[ind[1]] < 0.15 && rTrkIso[ind[0]] >= 0.15', "leading muons is isolated : ") 
+    df_siso  = df_siso.Filter('ScoutingMuon_pt[ind[1]] > 15')
+    df_niso  = df.Filter('All(rTrkIso >= 0.15)', "Muons are not isolated")
     df_isos = [
               ("NIReq", df),
               ("Biso", df_biso), 
-              # ("Siso", df_siso),
+              ("Siso", df_siso),
               ("Niso", df_niso)
               ]
 
-    reports_s = []
+  
     for label_iso, df_iso in df_isos :
 
       # Book Histograms for each variable
@@ -138,7 +113,6 @@ def main():
     writeHist(hists_s[hkey], hkey)
 
   d.GetNRuns()
-  # Cut-Flow
   outf.Close()
 
 if __name__ == "__main__" :
