@@ -14,3 +14,7 @@ Skim/skim
 
 # ignore vscode related files
 .vscode/
+Run3.code-workspace
+
+# ignore python coche
+Analysis/__pycache__
