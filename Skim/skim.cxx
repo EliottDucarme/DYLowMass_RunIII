@@ -49,24 +49,25 @@ void Cut(std::string inf, std::string type)
     .Define("rHCalIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuon_hcalIso", "ScoutingMuon_pt"})
     // Skimming
     // Should not be asked for trigger efficiency, biasing the computation.
-    .Filter([](Int_t n){ return n == 2;}, {"nScoutingMuon"}, "Exactly two muons")
-    .Filter([](RVec<float_t> eta, RVec<float_t> pt){return All(abs(eta) < 2.4) && All(pt > 5.0) ;}, {"ScoutingMuon_eta", "ScoutingMuon_pt"}, "In Eta and Pt Range")
-    .Filter([](float_t M){ return M > 10 ; }, {"ScoutingMuon_diMass"}, "Dimuon Mass > 10 Gev")
+    // .Filter([](Int_t n){ return n == 2;}, {"nScoutingMuon"}, "Exactly two muons")
+    // .Filter([](RVec<float_t> eta, RVec<float_t> pt){return All(abs(eta) < 2.4) && All(pt > 5.0) ;}, {"ScoutingMuon_eta", "ScoutingMuon_pt"}, "In Eta and Pt Range")
+    // .Filter([](float_t M){ return M > 10 ; }, {"ScoutingMuon_diMass"}, "Dimuon Mass > 10 Gev")
     //
     ;
+
+  std::string var =  "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$| \
+          nScoutingDisplacedVertex|^L1_DoubleMu.*$|^DST.*$|genWeight|^Gen.*$";
   
   if ( !type.compare("Data") ) {
     auto d2 = d1.Define("genWeight", [](){return 1.0f;});
   
-  d2.Snapshot("Events", "output.root",   
-      "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$|nScoutingDisplacedVertex|^L1_DoubleMu.*$|^DST.*$|genWeight");
+  d2.Snapshot("Events", "output.root", var);
   d2.Report()->Print();
   }
   else {
     auto d2 = d1;
   
-  d2.Snapshot("Events", "output.root",   
-      "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$|nScoutingDisplacedVertex|^L1_DoubleMu.*$|^DST.*$|genWeight");
+  d2.Snapshot("Events", "output.root", var);
   d2.Report()->Print();
   }
 }
