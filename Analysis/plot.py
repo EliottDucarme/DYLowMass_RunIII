@@ -2,6 +2,7 @@ import ROOT
 import sys
 import os
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetOptStat(0)
 
 # Define style 
 import cmsstyle as CMS
@@ -20,11 +21,15 @@ labels = {
   "diMass" : "M^{#mu#mu} / GeV",
   "diMassZ" : "M^{#mu#mu} / GeV",
   "diMassLow" : "M^{#mu#mu} / GeV",
+  "diEta"   : "#eta^{#mu#mu}",
   "dimassQCDscale" : "M^{#mu#mu} / GeV",
   "dimassDYscale" : "M^{#mu#mu} / GeV",
   "trkIsolation" : "I^{#mu}",
   "ECalIsolation" : "I^{#mu}",
   "HCalIsolation" : "I^{#mu}",
+  "relTrkIso"     : "I^{#mu}/p^{#mu}",
+  "relEcalIso"    : "I^{#mu}/p^{#mu}",
+  "relHcalIso"     : "I^{#mu}/p^{#mu}",
   # "Strip_Hit" : "# Strip Hit",
   # "Pixel_Hit" : "# Pixel Hit",
   # "Tracker_Hit" : "# Tracker Layer",
@@ -40,9 +45,9 @@ colors = {
 
 # Declare isolation level
 isos = [
-   "NIReq", 
-   "Biso", 
-  #  "Siso", 
+  "NIReq", 
+  "Biso", 
+  "Siso", 
   "Niso"
    ]
 
@@ -54,20 +59,19 @@ def getHistogram(tfile, name, variable, iso, tag=""):
         raise Exception("Failed to load histogram {}.".format(name))
     return h
 
-def GetScaleFactor() :
+def getScaleFactor() :
   inf_N = "Hist/histograms.root"
   inf = ROOT.TFile(inf_N, "READ")
-
   # sim
-  DY_dy = getHistogram( inf, "DY", "dimassDYscale", "Biso")
-  DY_qcd = getHistogram( inf, "QCD", "dimassDYscale", "Biso")
-  dy_dy = DY_dy.GetBinContent(1)
-  dy_qcd = DY_qcd.GetBinContent(1)
+  scaleDY_dy = getHistogram( inf, "DY", "dimassDYscale", "Biso")
+  scaleDY_qcd = getHistogram( inf, "QCD", "dimassDYscale", "Biso")
+  dy_dy = scaleDY_dy.GetBinContent(1)
+  dy_qcd = scaleDY_qcd.GetBinContent(1)
 
-  QCD_qcd = getHistogram( inf, "QCD", "dimassQCDscale", "Niso")
-  QCD_dy = getHistogram( inf, "DY", "dimassQCDscale", "Niso")
-  qcd_qcd = QCD_qcd.GetBinContent(1)
-  qcd_dy = QCD_dy.GetBinContent(1)
+  scaleQCD_qcd = getHistogram( inf, "QCD", "dimassQCDscale", "Niso")
+  scaleQCD_dy = getHistogram( inf, "DY", "dimassQCDscale", "Niso")
+  qcd_qcd = scaleQCD_qcd.GetBinContent(1)
+  qcd_dy = scaleQCD_dy.GetBinContent(1)
 
   # real stuff
   DATA_dy = getHistogram( inf, "Data", "dimassDYscale", "Biso")
@@ -93,68 +97,67 @@ def main(var, iso, scale):
   inf = ROOT.TFile(inf_n, "READ")
   
   # # Get simulation
-  DY = getHistogram( inf, "DY", var, iso)
-  DY.Scale(scale[0])
-  QCD = getHistogram( inf, "QCD", var, iso)
-  QCD.Scale(scale[1])
+  dy = getHistogram( inf, "DY", var, iso)
+  dy.Scale(scale[0])
+  qcd = getHistogram( inf, "QCD", var, iso)
+  qcd.Scale(scale[1])
 
   # Get the real stuff
-  Data = getHistogram( inf, "Data", var, iso)
-  
-  # Stack to compare visually simulation and real stuff
-  stack = ROOT.THStack("", "")
+  data = getHistogram( inf, "Data", var, iso)
 
-  # Ratio to quantify the difference between simulation and real stuff
-  MC = DY.Clone()
-  MC.Add(QCD)
-  ratio = Data/MC
-
-  # Set the ratio plot range to keep interesting values visibles
-  r_mean = ratio.GetMean(2)
-  r_StdDev = ratio.GetRMS(2)
-  print(r_mean, r_StdDev)
+  # draw a clone of the ratio plot
+  # a canvas that is not going to be saved
+  tmpc = ROOT.TCanvas("", "", 600, 600)
+  mc = qcd.Clone()
+  mc.Add(dy)
+  ratio = ROOT.TRatioPlot(data, mc)
+  ratio.Draw()
+  r_mean = ratio.GetLowerRefGraph().GetMean(2)
+  r_StdDev = ratio.GetLowerRefGraph().GetRMS(2)
   if r_StdDev == 0 or r_StdDev > 0.4 :
      r_StdDev = 0.4
-  xlow = Data.GetBinLowEdge(1)
-  xhigh = Data.GetBinLowEdge(Data.GetNbinsX()+1)
-  # print(labels[var])
-  c = CMS.cmsDiCanvas(var, xlow, xhigh, \
-        Data.GetMinimum()/1000, Data.GetMaximum()*10+1, 0.5, 1.5, \
-          labels[var], "Entries", "Data/MC")
-  # ratio.SetGridlines({r_mean-r_StdDev, r_mean, r_mean+r_StdDev})
-  
-  # # Text with the stat values
-  # stat = ROOT.TPaveText(0.01, 0.01, 0.25, 0.03, "NDC")
-  # stat.SetTextSize(0.02)
-  # stat.SetFillColor(0)
-  # text = "Mean : {:.3f} ; RMS : {:.3f}".format(r_mean, r_StdDev)
-  # stat.AddText(text)
-  # stat.Draw()
+  r_max = r_mean + 2*r_StdDev
+  r_min = r_mean - 2*r_StdDev
 
-  # Check if 1 is in range for the reference line to be drawn
-  if ( (r_mean + 2*r_StdDev > 1) and (r_mean - 2*r_StdDev < 1)) :
-    ratio.GetLowerPad().cd() 
-    ROOT.gPad.Update()
-    xmin = ROOT.gPad.GetUxmin()
-    xmax = ROOT.gPad.GetUxmax()
-    line = ROOT.TLine(xmin, 1, xmax, 1)
-    line.SetLineWidth(2)
-    line.Draw()
-    
+  # use cmsstyle to define a canvas 
+  xlow = data.GetBinLowEdge(1)
+  xhigh = data.GetBinLowEdge(data.GetNbinsX()+1)
+  c = CMS.cmsDiCanvas(var, xlow, xhigh, \
+        data.GetMinimum()/100+1, data.GetMaximum()*100, r_min, r_max, \
+          labels[var], "Entries", "Data/MC")
+  
   # Make legend
   legend = CMS.cmsLeg(0.6, 0.73, 0.88, 0.88)
 
-  # Draw
+  # Draw 
   c.cd(1)
+  stack = ROOT.THStack("", "")
   ROOT.gPad.SetLogy()
-  samples = {"Drell-Yan"                    : DY, 
-              "QCD, p^{#mu}_{T} > 4.5 GeV"  : QCD}
-  CMS.cmsDrawStack(stack, legend, samples, Data)
-  
-  c.cd(2)
-  CMS.cmsDraw(ratio, "HIST PE")
-  # ratio.Draw("Hist PE")
+  samples = { "Drell-Yan"                 : dy, 
+              "QCD, p^{#mu}_{T} > 5 GeV"  : qcd}
+  CMS.cmsDrawStack(stack, legend, samples, data)
+  c.Update()
+  data.SetStats(0)
 
+  
+  # get the ratio from TRatio and draw it on cmsDiCanvas
+  #lower pad
+  c.cd(2)
+  r = ratio.GetLowerRefGraph()
+  CMS.cmsDraw(r, "PE")
+  up_line = ROOT.TLine(xlow, r_mean + r_StdDev, xhigh, r_mean + r_StdDev)
+  dn_line = ROOT.TLine(xlow, r_mean - r_StdDev, xhigh, r_mean - r_StdDev)
+  up_line.SetLineStyle(2)
+  dn_line.SetLineStyle(2)
+  up_line.Draw()
+  dn_line.Draw()
+  
+  # Check if 1 is in range for the reference line to be drawn
+  if ( (r_mean + 2*r_StdDev > 1) and (r_mean - 2*r_StdDev < 1)) :
+    ROOT.gPad.Update()
+    line = ROOT.TLine(xlow, 1, xhigh, 1)
+    line.SetLineWidth(1)
+    line.Draw()
 
   # Add title
   latex = ROOT.TLatex()
@@ -166,12 +169,9 @@ def main(var, iso, scale):
   c.SaveAs("Hist/{}/{}.pdf".format(iso, var))
   c.SaveAs("Hist/{}/{}.png".format(iso, var))
   
-
 # Loop over all variable names and make a plot for each
 if __name__ == "__main__":
-  scale_dy = 1.0
-  scale_qcd = 1.0
-  # scale_dy, scale_qcd = GetScaleFactor()
+  scale_dy, scale_qcd = getScaleFactor()
   for variable in labels.keys():
       for iso in isos : 
-        main(variable, iso, (scale_dy, scale_qcd))
+        main(variable, iso, (1.0, 1.0))
