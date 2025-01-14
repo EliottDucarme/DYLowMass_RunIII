@@ -147,10 +147,13 @@ def main(var, iso, scale):
   CMS.cmsDraw(r, "PE")
   up_line = ROOT.TLine(xlow, r_mean + r_StdDev, xhigh, r_mean + r_StdDev)
   dn_line = ROOT.TLine(xlow, r_mean - r_StdDev, xhigh, r_mean - r_StdDev)
+  mid_line = ROOT.TLine(xlow, r_mean , xhigh, r_mean )
   up_line.SetLineStyle(2)
   dn_line.SetLineStyle(2)
+  mid_line.SetLineStyle(2)
   up_line.Draw()
   dn_line.Draw()
+  mid_line.Draw()
   
   # Check if 1 is in range for the reference line to be drawn
   if ( (r_mean + 2*r_StdDev > 1) and (r_mean - 2*r_StdDev < 1)) :
@@ -171,7 +174,7 @@ def main(var, iso, scale):
   
 # Loop over all variable names and make a plot for each
 if __name__ == "__main__":
-  scale_dy, scale_qcd = getScaleFactor()
+  # scale_dy, scale_qcd = getScaleFactor()
   for variable in labels.keys():
       for iso in isos : 
         main(variable, iso, (1.0, 1.0))
