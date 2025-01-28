@@ -4,11 +4,10 @@ ROOT.gROOT.SetBatch(True)
 import sys
 import os
 
-from helper import *
-
+ROOT.gInterpreter.ProcessLine('#include "helper.h"')
 
 # Declaration of ranges for each histogram type
-default_nbins = 25
+default_nbins = 100
 ranges = {
   "diPt" : ("ScoutingMuon_diPt", default_nbins, 0.0, 100.0),
   "diMass" : ("ScoutingMuon_diMass", default_nbins, 10.0, 110.0),
@@ -53,12 +52,19 @@ def main():
 
   # Create the dataframe with the .json spec file
   ROOT.EnableImplicitMT(12)
-  d = ROOT.RDF.Experimental.FromSpec("samples.json")
-  d = initializeFromJSON(d)
+  d = ROOT.RDF.Experimental.FromSpec("Samples.json")
+  ROOT.RDF.Experimental.AddProgressBar(d)
+  # d = d.Range(10000)
+
+  # Take info from the spec .json file
+  d = d.DefinePerSample("xsec", 'rdfsampleinfo_.GetD("xsec")')
+  d = d.DefinePerSample("sumws", 'rdfsampleinfo_.GetD("sumws")')
+  d = d.DefinePerSample("type", 'rdfsampleinfo_.GetS("type")')
+  d = d.Define("norm", 'reweighting(xsec, sumws, genWeight, type)',{"xsec", "sumws", "genWeight", "type"})
 
 
   # Define new variables
-  d = d.Define("ind", 'sorting(ScoutingMuon_pt)', {"ScoutingMuon_pt"})
+  d = d.Define("ind", 'ROOT::VecOps::Argsort(ScoutingMuon_pt)', {"ScoutingMuon_pt"})
   d = d.Define("leadpt", "ScoutingMuon_pt[ind[1]]").Define("subpt", "ScoutingMuon_pt[ind[0]]")
   d = d.Define("leadeta", "ScoutingMuon_eta[ind[1]]").Define("subeta", "ScoutingMuon_eta[ind[0]]")
   d = d.Define("leadphi", "ScoutingMuon_phi[ind[1]]").Define("subphi", "ScoutingMuon_phi[ind[0]]")
@@ -67,20 +73,24 @@ def main():
   d = d.Define("rHcalIso", "ScoutingMuon_hcalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_hcalIso"})
 
   # Filter the events
+  # d = d.Filter('type == "MC_TT"', "is TT MC")
   d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream")
   d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
-  d = d.Filter("ScoutingMuon_diMass > 76 && ScoutingMuon_diMass < 106", "Z peak")
-  d = d.Filter('leadpt/ScoutingMuon_diMass > 0.45').Filter('subpt/ScoutingMuon_diMass > 0.25', "leptons are decay products of the original boson")
+  # d = d.Filter("ScoutingMuon_diMass > 76 && ScoutingMuon_diMass < 106", "Z peak")
+  d = d.Filter("abs(ScoutingMuon_eta[0]) < 2.0 && abs(ScoutingMuon_eta[1]) < 2.0", "ignore event badly selected by trigger")
+  # d = d.Filter('leadpt/ScoutingMuon_diMass > 0.45').Filter('subpt/ScoutingMuon_diMass > 0.25', "leptons are decay products of the original boson")
 
   # Separate samples and add them to the sample list
   samples = []
   dD = d.Filter('type == "Data"')
   samples.append(("Data", dD))
-  dMC = d.Filter('type == "MC_DY" or type == "MC_QCD"')
+  dMC = d.Filter('type == "MC_DY" or type == "MC_QCD" or type == "MC_TT"')
   dDY = dMC.Filter('type == "MC_DY"')
   samples.append(("DY", dDY))
   dQCD = dMC.Filter('type == "MC_QCD"')
   samples.append(("QCD", dQCD))
+  dTT = dMC.Filter('type == "MC_TT"', "is TT MC")
+  samples.append(("TT", dTT))
 
   # Loop over sample to make histograms for each isolation selection
   plots = ranges.keys()
@@ -107,11 +117,12 @@ def main():
         hkey = "{}_{}_{}".format(df_label, plot, label_iso)
         hists_s[hkey] = bookHist(df_iso, plot, ranges[plot])
 
-
+  dTT.Report().Print()
   # Write histograms in the file
   for hkey in hists_s : 
     writeHist(hists_s[hkey], hkey)
-
+  
+  
   d.GetNRuns()
   outf.Close()
 
