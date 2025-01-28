@@ -16,7 +16,7 @@ Help(){
     echo -e "${RED}1)                Usage:   $0  <Dataset>  <Year>  <Era>  <Output>${NC}"
     printf "=%.0s" {1..114}; printf "\n"                                 
     echo
-    echo "Dataset            ---> Data / DY / QCD "
+    echo "Dataset            ---> Data / DY / QCD / TT"
     echo "Year               ---> 2022"
     echo "Era or MC Binning  ---> BCDEFG || XXtoYY  MC (Depending on the Year and Dataset: check Datasets.md)"
     echo "Output             ---> Output directory to be created in /pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/<Year>/<Dataset>_<Era>/"
@@ -39,7 +39,7 @@ folder=$5
 part=$4
 
 # Check if dataset name is correct 
-if ! [[ "$dataset" =~ ^(Data|DY|QCD) ]]
+if ! [[ "$dataset" =~ ^(Data|DY|QCD|TT) ]]
 then                                                                                     
     echo
     echo -e "${RED}Error : Invalid Dataset name!${NC}"                                                       
@@ -70,6 +70,13 @@ elif [[ $year == 2022 && $dataset == "DY" ]]; then
       Help
       exit 1
    fi
+elif [[ $year == 2022 && $dataset == "TT" ]]; then
+   if ! [[ "$era" == "4to50" || "$era" == "50" ]]; then
+      echo -e "${RED}Error : Invalid Binning for DY ! ${NC}"
+      echo -e "${RED} 4to50, 50 ${NC}"
+      Help
+      exit 1
+   fi
 elif [[ $year == 2022 && $dataset == "QCD" ]]; then
    if ! [[ "$era" == "15to20" || "$era" == "20to30" || "$era" == "30to50" || "$era" == "50to80" || 
    "$era" == "80to120" || "$era" == "120to170" || "$era" == "170to300" || 
@@ -85,7 +92,7 @@ fi
 # The output directory in personal pnfs store area
 if [[ $dataset == "QCD" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/PT-${era}/${folder} 
-elif [[ $dataset == "DY" ]]; then
+elif [[ $dataset == "DY" || $dataset == "TT" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/M-${era}/${folder}
 elif [[ $dataset == "Data" ]]; then
   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}_${era}_${part}/${folder}
@@ -114,7 +121,9 @@ if [[ "$dataset" == "Data" ]]; then
   files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON_${part}/*/*/*.root"       # All files
 # MC
 elif [[ $dataset == "QCD" ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"              # All files
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"     
+elif [[ $dataset == "TT" ]]; then
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/TTLL_MLL-${era}_TuneCP5_13p6TeV_amcatnlo-pythia8//*/*/*/*.root"              # All files
 elif [[ $dataset == "DY" ]]; then
   # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root"  # Small subset of files
   files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root"         # All files
