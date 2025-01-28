@@ -40,7 +40,8 @@ labels = {
 # Set colors
 colors = {
   "DY" : ROOT.TColor.GetColor(155, 152, 204),
-  "QCD" : ROOT.TColor.GetColor(222, 90, 106)
+  "QCD" : ROOT.TColor.GetColor(222, 90, 106),
+  "TT" : ROOT.TColor.GetColor(228, 37, 54)
 }
 
 # Declare isolation level
@@ -101,6 +102,9 @@ def main(var, iso, scale):
   dy.Scale(scale[0])
   qcd = getHistogram( inf, "QCD", var, iso)
   qcd.Scale(scale[1])
+  tt = getHistogram( inf, "TT", var, iso)
+  tt.Scale(scale[1])
+  
 
   # Get the real stuff
   data = getHistogram( inf, "Data", var, iso)
@@ -110,6 +114,7 @@ def main(var, iso, scale):
   tmpc = ROOT.TCanvas("", "", 600, 600)
   mc = qcd.Clone()
   mc.Add(dy)
+  mc.Add(tt)
   ratio = ROOT.TRatioPlot(data, mc)
   ratio.Draw()
   r_mean = ratio.GetLowerRefGraph().GetMean(2)
@@ -123,7 +128,7 @@ def main(var, iso, scale):
   xlow = data.GetBinLowEdge(1)
   xhigh = data.GetBinLowEdge(data.GetNbinsX()+1)
   c = CMS.cmsDiCanvas(var, xlow, xhigh, \
-        data.GetMinimum()/100+1, data.GetMaximum()*100, r_min, r_max, \
+        1, data.GetMaximum()*100, r_min, r_max, \
           labels[var], "Entries", "Data/MC")
   
   # Make legend
@@ -134,7 +139,8 @@ def main(var, iso, scale):
   stack = ROOT.THStack("", "")
   ROOT.gPad.SetLogy()
   samples = { "Drell-Yan"                 : dy, 
-              "QCD, p^{#mu}_{T} > 5 GeV"  : qcd}
+              "QCD, p^{#mu}_{T} > 5 GeV"  : qcd,
+              "t#bar{t}" : tt}
   CMS.cmsDrawStack(stack, legend, samples, data)
   c.Update()
   data.SetStats(0)
@@ -145,15 +151,16 @@ def main(var, iso, scale):
   c.cd(2)
   r = ratio.GetLowerRefGraph()
   CMS.cmsDraw(r, "PE")
-  up_line = ROOT.TLine(xlow, r_mean + r_StdDev, xhigh, r_mean + r_StdDev)
-  dn_line = ROOT.TLine(xlow, r_mean - r_StdDev, xhigh, r_mean - r_StdDev)
-  mid_line = ROOT.TLine(xlow, r_mean , xhigh, r_mean )
-  up_line.SetLineStyle(2)
-  dn_line.SetLineStyle(2)
-  mid_line.SetLineStyle(2)
-  up_line.Draw()
-  dn_line.Draw()
-  mid_line.Draw()
+  if not (r_StdDev == 0 or r_StdDev > 0.4) :
+    up_line = ROOT.TLine(xlow, r_mean + r_StdDev, xhigh, r_mean + r_StdDev)
+    dn_line = ROOT.TLine(xlow, r_mean - r_StdDev, xhigh, r_mean - r_StdDev)
+    mid_line = ROOT.TLine(xlow, r_mean , xhigh, r_mean )
+    up_line.SetLineStyle(2)
+    dn_line.SetLineStyle(2)
+    mid_line.SetLineStyle(2)
+    up_line.Draw()
+    dn_line.Draw()
+    mid_line.Draw()
   
   # Check if 1 is in range for the reference line to be drawn
   if ( (r_mean + 2*r_StdDev > 1) and (r_mean - 2*r_StdDev < 1)) :
