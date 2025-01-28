@@ -1,0 +1,45 @@
+{
+  "samples": {
+    "MC_DY_10To50": {
+      "trees" : ["Events"],
+      "files": [
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_1.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_2.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_3.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_4.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_5.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_6.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_7.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_8.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-10to50/GenPartInfo/DY_M-10to50_9.root"
+    ],
+      "metadata":{
+        "xsec" : 20950.0,
+        "sumws" : 164092204.0,
+        "type" : "MC_DY"
+      }
+    },
+
+    "MC_DY50ToInf": 
+    {
+      "trees" : ["Events"],
+      "files": [
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_1.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_2.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_3.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_4.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_5.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_6.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_7.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_8.root",
+        "/user/educarme/pnfs/ScoutingSkim/2022/DY/M-50/GenPartInfo/DY_M-50_9.root"
+    ],
+      "metadata":
+      {
+        "xsec" : 6688.0,
+        "sumws" : 129820058.0,
+        "type" : "MC_DY"
+      }
+    }
+  }
+}
