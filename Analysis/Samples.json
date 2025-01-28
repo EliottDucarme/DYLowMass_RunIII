@@ -164,6 +164,29 @@
         "type" : "MC_QCD"
       }
     },
+    "TT_M-4to50": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/TT/M-4to50/genInfo/TT_M-4to50.root"],
+      "metadata":
+      {
+        "xsec" : 0.03949,
+        "sumws" : 41403.1594504267,
+        "type" : "MC_TT"
+      }
+    }, 
+
+    "TT_M-50": 
+    {
+      "trees" : ["Events"],
+      "files": ["/user/educarme/pnfs/ScoutingSkim/2022/TT/M-50/genInfo/TT_M-50.root"],
+      "metadata":
+      {
+        "xsec" : 0.08646,
+        "sumws" : 119831.62957143784,
+        "type" : "MC_TT"
+      }
+    }, 
 
     "Data" :
     {
