@@ -30,7 +30,7 @@ RVec<T> dimuonKinematic(const RVec<T>& pt, const RVec<T>& eta, const RVec<T>& ph
   T Y = log( (E + Pz) / pow( pow(M, 2) + pow(Pt, 2) , 1/2) );
   T Phi = P.Phi();
   RVec<T> dimuon {Pt, Eta, Phi, M, Y};
-   
+
    return dimuon;
 }
 
@@ -57,16 +57,16 @@ void Cut(std::string inf, std::string type)
 
   std::string var =  "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$| \
           nScoutingDisplacedVertex|^L1_DoubleMu.*$|^DST.*$|genWeight|^Gen.*$";
-  
+
   if ( !type.compare("Data") ) {
     auto d2 = d1.Define("genWeight", [](){return 1.0f;});
-  
+
   d2.Snapshot("Events", "output.root", var);
   d2.Report()->Print();
   }
   else {
     auto d2 = d1;
-  
+
   d2.Snapshot("Events", "output.root", var);
   d2.Report()->Print();
   }

@@ -4,12 +4,12 @@ import os
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
-# Define style 
+# Define style
 import cmsstyle as CMS
 CMS.SetExtraText("Preliminary")
 CMS.SetLumi("3.08")
 
-# Declare labels 
+# Declare labels
 labels = {
   "lead_pt" : "p_{T}^{#mu} / GeV",
   "sub_pt" : "p_{T}^{#mu} / GeV",
@@ -18,6 +18,7 @@ labels = {
   "lead_phi" : "#phi",
   "sub_phi" : "#phi",
   "diPt" : "p_{T}^{#mu#mu} / GeV",
+  "diY" : "y^{#mu #mu}",
   "diMass" : "M^{#mu#mu} / GeV",
   "diMassZ" : "M^{#mu#mu} / GeV",
   "diMassLow" : "M^{#mu#mu} / GeV",
@@ -46,9 +47,9 @@ colors = {
 
 # Declare isolation level
 isos = [
-  "NIReq", 
-  "Biso", 
-  "Siso", 
+  "NIReq",
+  "Biso",
+  "Siso",
   "Niso"
    ]
 
@@ -87,7 +88,7 @@ def getScaleFactor() :
   rdy = data_dy/dy_dy
 
   data_qcd = data_qcd - qcd_dy
-  if data_qcd == 0 : 
+  if data_qcd == 0 :
      rqcd = 1
   else :
     rqcd = data_qcd/qcd_qcd
@@ -96,7 +97,7 @@ def getScaleFactor() :
 def main(var, iso, scale):
   inf_n = "Hist/histograms.root"
   inf = ROOT.TFile(inf_n, "READ")
-  
+
   # # Get simulation
   dy = getHistogram( inf, "DY", var, iso)
   dy.Scale(scale[0])
@@ -104,7 +105,7 @@ def main(var, iso, scale):
   qcd.Scale(scale[1])
   tt = getHistogram( inf, "TT", var, iso)
   tt.Scale(scale[1])
-  
+
 
   # Get the real stuff
   data = getHistogram( inf, "Data", var, iso)
@@ -114,7 +115,7 @@ def main(var, iso, scale):
   tmpc = ROOT.TCanvas("", "", 600, 600)
   mc = qcd.Clone()
   mc.Add(dy)
-  mc.Add(tt)
+  # mc.Add(tt)
   ratio = ROOT.TRatioPlot(data, mc)
   ratio.Draw()
   r_mean = ratio.GetLowerRefGraph().GetMean(2)
@@ -124,28 +125,30 @@ def main(var, iso, scale):
   r_max = r_mean + 2*r_StdDev
   r_min = r_mean - 2*r_StdDev
 
-  # use cmsstyle to define a canvas 
+  # use cmsstyle to define a canvas
   xlow = data.GetBinLowEdge(1)
   xhigh = data.GetBinLowEdge(data.GetNbinsX()+1)
   c = CMS.cmsDiCanvas(var, xlow, xhigh, \
         1, data.GetMaximum()*100, r_min, r_max, \
           labels[var], "Entries", "Data/MC")
-  
+
   # Make legend
   legend = CMS.cmsLeg(0.6, 0.73, 0.88, 0.88)
 
-  # Draw 
+  # Draw
   c.cd(1)
   stack = ROOT.THStack("", "")
   ROOT.gPad.SetLogy()
-  samples = { "Drell-Yan"                 : dy, 
+  samples = {
+              "t#bar{t} #rightarrow 2l2#nu" : tt,
               "QCD, p^{#mu}_{T} > 5 GeV"  : qcd,
-              "t#bar{t}" : tt}
+              "Drell-Yan"                 : dy
+              }
   CMS.cmsDrawStack(stack, legend, samples, data)
-  c.Update()
   data.SetStats(0)
+  ROOT.gPad.RedrawAxis()
 
-  
+
   # get the ratio from TRatio and draw it on cmsDiCanvas
   #lower pad
   c.cd(2)
@@ -161,7 +164,7 @@ def main(var, iso, scale):
     up_line.Draw()
     dn_line.Draw()
     mid_line.Draw()
-  
+
   # Check if 1 is in range for the reference line to be drawn
   if ( (r_mean + 2*r_StdDev > 1) and (r_mean - 2*r_StdDev < 1)) :
     ROOT.gPad.Update()
@@ -176,12 +179,12 @@ def main(var, iso, scale):
   latex.SetTextFont(42)
 
   # Save
-  c.SaveAs("Hist/{}/{}.pdf".format(iso, var))
-  c.SaveAs("Hist/{}/{}.png".format(iso, var))
-  
+  c.SaveAs("Hist/Main/{}/{}.pdf".format(iso, var))
+  c.SaveAs("Hist/Main/{}/{}.png".format(iso, var))
+
 # Loop over all variable names and make a plot for each
 if __name__ == "__main__":
   # scale_dy, scale_qcd = getScaleFactor()
   for variable in labels.keys():
-      for iso in isos : 
+      for iso in isos :
         main(variable, iso, (1.0, 1.0))

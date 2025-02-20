@@ -8,7 +8,7 @@ Skim/skim
 # ignore big files
 *.root
 
-# igore images 
+# igore images
 *.png
 *.pdf
 
@@ -18,3 +18,10 @@ Run3.code-workspace
 
 # ignore python coche
 Analysis/__pycache__
+Analysis/helper.cxx
+
+# ingore C/C++ extensions files
+.clang-format
+.clang-tidy
+.editorconfig
+.gitattributes
