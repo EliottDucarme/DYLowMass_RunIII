@@ -1,4 +1,4 @@
-#!/bin/bash                                                           
+#!/bin/bash
 
 # Set the paths below according to your needs:
 jobpath=JobSub                                         # New directory to be created for the submission files
@@ -7,14 +7,14 @@ subpath=${PWD}/${jobpath}                              # Path to be used for the
 # Color variables for message and error printing
 RED='\033[0;31m'
 PURPLE='\033[1;35m'
-NC='\033[0m' # No Color 
-             
-# Help message                                                       
+NC='\033[0m' # No Color
+
+# Help message
 Help(){
-    echo                                                                
-    printf "=%.0s" {1..114}; printf "\n"                                 
+    echo
+    printf "=%.0s" {1..114}; printf "\n"
     echo -e "${RED}1)                Usage:   $0  <Dataset>  <Year>  <Era>  <Output>${NC}"
-    printf "=%.0s" {1..114}; printf "\n"                                 
+    printf "=%.0s" {1..114}; printf "\n"
     echo
     echo "Dataset            ---> Data / DY / QCD / TT"
     echo "Year               ---> 2022"
@@ -28,8 +28,8 @@ Help(){
     # printf "=%.0s" {1..114}; printf "\n"
     # echo
     # echo "input.txt  ---> Inputs folder"
-    # echo                                                                
-    exit 1                                                              
+    # echo
+    exit 1
 }
 
 dataset=$1
@@ -38,19 +38,19 @@ era=$3
 folder=$5
 part=$4
 
-# Check if dataset name is correct 
+# Check if dataset name is correct
 if ! [[ "$dataset" =~ ^(Data|DY|QCD|TT) ]]
-then                                                                                     
+then
     echo
-    echo -e "${RED}Error : Invalid Dataset name!${NC}"                                                       
+    echo -e "${RED}Error : Invalid Dataset name!${NC}"
     Help
-    exit 1   
-fi                                                                           
-    
+    exit 1
+fi
+
 # Check if year is correct
 if ! [[ "$year" =~ ^(2022) ]]; then
     echo
-    echo -e "${RED}Error : Invalid Year!${NC}"                                                       
+    echo -e "${RED}Error : Invalid Year!${NC}"
     Help
     exit 1
 fi
@@ -71,16 +71,16 @@ elif [[ $year == 2022 && $dataset == "DY" ]]; then
       exit 1
    fi
 elif [[ $year == 2022 && $dataset == "TT" ]]; then
-   if ! [[ "$era" == "4to50" || "$era" == "50" ]]; then
-      echo -e "${RED}Error : Invalid Binning for DY ! ${NC}"
-      echo -e "${RED} 4to50, 50 ${NC}"
+   if ! [[ "$era" == "NoBin" ]]; then
+      echo -e "${RED}Error : Invalid Binning for TT ! ${NC}"
+      echo -e "${RED} NoBin ${NC}"
       Help
       exit 1
    fi
 elif [[ $year == 2022 && $dataset == "QCD" ]]; then
-   if ! [[ "$era" == "15to20" || "$era" == "20to30" || "$era" == "30to50" || "$era" == "50to80" || 
-   "$era" == "80to120" || "$era" == "120to170" || "$era" == "170to300" || 
-   "$era" == "300to470" || "$era" == "470to600" || "$era" == "600to800" || 
+   if ! [[ "$era" == "15to20" || "$era" == "20to30" || "$era" == "30to50" || "$era" == "50to80" ||
+   "$era" == "80to120" || "$era" == "120to170" || "$era" == "170to300" ||
+   "$era" == "300to470" || "$era" == "470to600" || "$era" == "600to800" ||
    "$era" == "800to1000" || "$era" == "1000" ]]; then
       echo -e "${RED}Error : Invalid binning for QCD!${NC}"
       echo -e "${RED}2022 eras : C D${NC}"
@@ -91,9 +91,11 @@ fi
 
 # The output directory in personal pnfs store area
 if [[ $dataset == "QCD" ]]; then
-   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/PT-${era}/${folder} 
-elif [[ $dataset == "DY" || $dataset == "TT" ]]; then
+   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/PT-${era}/${folder}
+elif [[ $dataset == "DY" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/M-${era}/${folder}
+elif [[ $dataset == "TT" ]]; then
+   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/${folder}
 elif [[ $dataset == "Data" ]]; then
   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}_${era}_${part}/${folder}
 else
@@ -105,7 +107,7 @@ else
   exit 1
 fi
 
-if [ ! -d $output ] 
+if [ ! -d $output ]
 then
     mkdir -p $output
 else
@@ -121,9 +123,9 @@ if [[ "$dataset" == "Data" ]]; then
   files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON_${part}/*/*/*.root"       # All files
 # MC
 elif [[ $dataset == "QCD" ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"     
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"
 elif [[ $dataset == "TT" ]]; then
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/TTLL_MLL-${era}_TuneCP5_13p6TeV_amcatnlo-pythia8//*/*/*/*.root"              # All files
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/*/*.root"              # All files
 elif [[ $dataset == "DY" ]]; then
   # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root"  # Small subset of files
   files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root"         # All files
@@ -147,7 +149,7 @@ sed 's@exe.sh@'$newexe'@g' $tmpsub > $newsub       # executable name in the subm
 sed -i 's@PATH_TO_OUTPUT@'$output'@g' $newsub      # path for the output root files in the submit file
 sed -i 's@LIST_OF_FILES@'$files'@g' $newsub        # list of input files in the submit file
 
-# Check whether the directory as set above exists. 
+# Check whether the directory as set above exists.
 # Otherwise create it and move inside it to proceed with job submission.
 if [ ! -d $jobpath ]; then
     mkdir $jobpath
