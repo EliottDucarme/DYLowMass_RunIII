@@ -10,6 +10,7 @@ ROOT.gInterpreter.ProcessLine('#include "helper.h"')
 default_nbins = 100
 ranges = {
   "diPt" : ("ScoutingMuon_diPt", default_nbins, 0.0, 100.0),
+  "diY" : ("diY", default_nbins, -2.5, 2.5),
   "diMass" : ("ScoutingMuon_diMass", default_nbins, 10.0, 110.0),
   "diMassZ" : ("ScoutingMuon_diMass", default_nbins, 81.0, 101.0),
   "diMassLow" : ("ScoutingMuon_diMass", default_nbins, 10.0, 60.0),
@@ -68,6 +69,8 @@ def main():
   d = d.Define("leadpt", "ScoutingMuon_pt[ind[1]]").Define("subpt", "ScoutingMuon_pt[ind[0]]")
   d = d.Define("leadeta", "ScoutingMuon_eta[ind[1]]").Define("subeta", "ScoutingMuon_eta[ind[0]]")
   d = d.Define("leadphi", "ScoutingMuon_phi[ind[1]]").Define("subphi", "ScoutingMuon_phi[ind[0]]")
+  d = d.Define("dimuonKinematics", 'dimuonKinematics(ScoutingMuon_pt, ScoutingMuon_eta, ScoutingMuon_phi)')
+  d = d.Define("diY", "dimuonKinematics[4]")
   d = d.Define("rTrkIso", "ScoutingMuon_trackIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_trackIso"})
   d = d.Define("rEcalIso", "ScoutingMuon_ecalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_ecalIso"})
   d = d.Define("rHcalIso", "ScoutingMuon_hcalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_hcalIso"})
