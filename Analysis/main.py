@@ -1,37 +1,49 @@
 #!/usr/bin/env python
 import ROOT
-ROOT.gROOT.SetBatch(True)
-
 ROOT.gInterpreter.ProcessLine('#include "helper.h"')
 
 # Declaration of ranges for each histogram type
-default_nbins = 15
+default_nbins = 100
 ranges = {
-  "diPt" : ("ScoutingMuon_diPt", default_nbins, 0.0, 100.0),
-  "diY" : ("diY", default_nbins, -2.5, 2.5),
-  "diMass" : ("ScoutingMuon_diMass", default_nbins, 10.0, 110.0),
-  "diMassZ" : ("ScoutingMuon_diMass", default_nbins, 81.0, 101.0),
-  "diMassLow" : ("ScoutingMuon_diMass", default_nbins, 10.0, 60.0),
-  "diEta" : ("ScoutingMuon_diEta", default_nbins, -5.0, 5.0),
-  "lead_pt" : ("leadpt", default_nbins, 5.0, 105.0),
-  "sub_pt" : ("subpt", default_nbins, 5.0, 105.0),
-  "lead_eta" : ("leadeta", default_nbins, -2.5, 2.5),
-  "sub_eta" : ("subeta", default_nbins, -2.5, 2.5),
-  "lead_phi" : ("leadphi",default_nbins, -3.15, 3.15),
-  "sub_phi" : ("subphi",default_nbins, -3.15, 3.15),
-  "dimassQCDscale" :("ScoutingMuon_diMass", 1, 12, 40),
-  "dimassDYscale" : ("ScoutingMuon_diMass", 1, 86, 96),
-  "HCalIsolation" : ("ScoutingMuon_hcalIso", 15, -5.0, 10),
-  "ECalIsolation" : ("ScoutingMuon_ecalIso", 15, -5.0, 10),
-  "trkIsolation" : ("ScoutingMuon_trackIso", 10, 0.0, 10),
-  "Strip_Hit" : ("ScoutingMuon_nValidStripHits", 25, 0, 25),
-  "Pixel_Hit" : ("ScoutingMuon_nPixelLayersWithMeasurement", 10, 0, 10),
-  "Tracker_Hit" : ("ScoutingMuon_nTrackerLayersWithMeasurement", 18, 0, 18),
-  "MuonChamber_Hit" : ("ScoutingMuon_nRecoMuonChambers", 50, 0, 51),
-  "MatchedStation" : ("ScoutingMuon_nRecoMuonMatchedStations", 5, 0, 5),
+  "ScoutingMuonNoVtxPair_Pt" : ("ScoutingMuonNoVtxPair_pt", default_nbins, 0.0, 50.0),
+  "ScoutingMuonNoVtxPair_PtLow" : ("ScoutingMuonNoVtxPair_pt", default_nbins, 0.0, 15.0),
+  "ScoutingMuonNoVtxPair_Y" : ("ScoutingMuonNoVtxPair_Y", default_nbins, -2.5, 2.5),
+  "ScoutingMuonNoVtxPair_mass" : ("ScoutingMuonNoVtxPair_mass", default_nbins, 10.0, 110.0),
+  "ScoutingMuonNoVtxPair_massZ" : ("ScoutingMuonNoVtxPair_mass", default_nbins, 76.0, 106.0),
+  "ScoutingMuonNoVtxPair_eta" : ("ScoutingMuonNoVtxPair_eta", default_nbins, -5.0, 5.0),
+
+  "ScoutingMuonNoVtx_trk_dxy" : ("ScoutingMuonNoVtx_trk_dxy", default_nbins, -20.0, 20.0),
+  "ScoutingMuonNoVtx_trk_dxy_short" : ("ScoutingMuonNoVtx_trk_dxy", default_nbins, -5.0, 5.0),
+  "ScoutingMuonNoVtx_trk_dz" : ("ScoutingMuonNoVtx_trk_dz", default_nbins, -20.0, 20.0),
+
+  "ScoutingMuonNoVtxLead_pt" : ("ScoutingMuonNoVtxSub_pt", default_nbins, 5.0, 105.0),
+  "ScoutingMuonNoVtxSub_pt" : ("ScoutingMuonNoVtxSub_pt", default_nbins, 5.0, 105.0),
+  "ScoutingMuonNoVtxSub_eta" : ("ScoutingMuonNoVtxSub_eta", default_nbins, -2.5, 2.5),
+  "ScoutingMuonNoVtxLead_eta" : ("ScoutingMuonNoVtxLead_eta", default_nbins, -2.5, 2.5),
+  "ScoutingMuonNoVtxLead_phi" : ("ScoutingMuonNoVtxLead_phi",default_nbins, -3.15, 3.15),
+  "ScoutingMuonNoVtxSub_phi" : ("ScoutingMuonNoVtxSub_phi",default_nbins, -3.15, 3.15),
+  "ScoutingMuonNoVtx_deltaPhi" : ("ScoutingMuonNoVtx_deltaPhi",default_nbins, -6.5, 6.5),
+  "ScoutingMuonNoVtx_deltaEta" : ("ScoutingMuonNoVtx_deltaEta",default_nbins, -5, 5),
+  "ScoutingMuonNoVtx_deltaR" : ("ScoutingMuonNoVtx_deltaR",default_nbins, 0, 6),
+
+  "HCalIsolation" : ("ScoutingMuonNoVtx_hcalIso", default_nbins, -5.0, 40),
+  "ECalIsolation" : ("ScoutingMuonNoVtx_ecalIso", default_nbins, -5.0, 40),
+  "trkIsolation" : ("ScoutingMuonNoVtx_trackIso", default_nbins, 0.0, 50),
   "relTrkIso" : ("rTrkIso", default_nbins, 0, 1),
   "relHcalIso" : ("rHcalIso", default_nbins, 0.0, 1),
   "relEcalIso" : ("rEcalIso", default_nbins, 0.0, 1),
+
+  "nTruePFJet" : ("nTruePFJet", default_nbins, 0.0, 100.0),
+  "nScoutingPFJet" : ("nScoutingPFJet", default_nbins, 0.0, 100.0),
+  "TruePFJet_HT" : ("TruePFJet_HT", default_nbins, 0.0, 1000.0),
+  "TruePFJet_pt" : ("TruePFJet_pt", default_nbins, 0.0, 400.0),
+
+  "nScoutingPrimaryVertex" : ("nScoutingPrimaryVertex", default_nbins, 0.0, 100.0),
+  "Strip_Hit" : ("ScoutingMuonNoVtx_nValidStripHits", 25, 0, 25),
+  "Pixel_Hit" : ("ScoutingMuonNoVtx_nPixelLayersWithMeasurement", 10, 0, 10),
+  "Tracker_Hit" : ("ScoutingMuonNoVtx_nTrackerLayersWithMeasurement", 18, 0, 18),
+  "MuonChamber_Hit" : ("ScoutingMuonNoVtx_nRecoMuonChambers", 50, 0, 51),
+  "MatchedStation" : ("ScoutingMuonNoVtx_nRecoMuonMatchedStations", 5, 0, 5),
 }
 
 
@@ -50,81 +62,114 @@ def main():
   outf = ROOT.TFile(outf_name, "RECREATE")
 
   # Create the dataframe with the .json spec file
-  ROOT.EnableImplicitMT(12)
-  d = ROOT.RDF.Experimental.FromSpec("Samples.json")
-  ROOT.RDF.Experimental.AddProgressBar(d)
+  ROOT.EnableImplicitMT(16)
+  d = ROOT.RDF.Experimental.FromSpec("samples_2024.json")
+  ROOT.RDF.Experimental.ProgressHelper.ProgressHelper(100000, progressBarWidth=5, useColors=True)
   # d = d.Range(1000000)
+  ROOT.RDF.Experimental.AddProgressBar(d)
 
   # Take info from the spec .json file
   d = d.DefinePerSample("xsec", 'rdfsampleinfo_.GetD("xsec")')
-  d = d.DefinePerSample("sumws", 'rdfsampleinfo_.GetD("sumws")')
-  d = d.DefinePerSample("type", 'rdfsampleinfo_.GetS("type")')
-  d = d.Define("norm", 'reweighting(xsec, sumws, genWeight, type)',{"xsec", "sumws", "genWeight", "type"})
+  d = d.DefinePerSample("sumws", 'rdfsampleinfo_.GetD("nevents")')
+  d = d.DefinePerSample("isMC", 'rdfsampleinfo_.GetS("isMC")')
+  d = d.DefinePerSample("sample", 'rdfsampleinfo_.GetS("sample")')
+  # d = d.DefaultValueFor("genWeight", 1.0) 
+  # d = d.Define("norm", 'reweighting(xsec, sumws, genWeight, isMC, 11417.484664139)', {"xsec", "sumws", "genWeight", "isMC"}) # Full 2024I
+  d = d.Define("norm", 'reweighting(xsec, sumws, genWeight, isMC, 839.477313932)', {"xsec", "sumws", "genWeight", "isMC"}) # 1 large runs  
 
 
   # Define new variables
-  d = d.Define("ind", 'ROOT::VecOps::Argsort(ScoutingMuon_pt)', {"ScoutingMuon_pt"})
-  d = d.Define("leadpt", "ScoutingMuon_pt[ind[1]]").Define("subpt", "ScoutingMuon_pt[ind[0]]")
-  d = d.Define("leadeta", "ScoutingMuon_eta[ind[1]]").Define("subeta", "ScoutingMuon_eta[ind[0]]")
-  d = d.Define("leadphi", "ScoutingMuon_phi[ind[1]]").Define("subphi", "ScoutingMuon_phi[ind[0]]")
-  d = d.Define("dimuonKinematics", 'dimuonKinematics(ScoutingMuon_pt, ScoutingMuon_eta, ScoutingMuon_phi)')
-  d = d.Define("diY", "dimuonKinematics[4]")
-  d = d.Define("rTrkIso", "ScoutingMuon_trackIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_trackIso"})
-  d = d.Define("rEcalIso", "ScoutingMuon_ecalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_ecalIso"})
-  d = d.Define("rHcalIso", "ScoutingMuon_hcalIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_hcalIso"})
+  d = d.Define("ind", 'ROOT::VecOps::Argsort(ScoutingMuonNoVtx_pt)', {"ScoutingMuonNoVtx_pt"})
+  d = d.Define("ScoutingMuonNoVtxLead_pt", "ScoutingMuonNoVtx_pt[ind[1]]").Define("ScoutingMuonNoVtxSub_pt", "ScoutingMuonNoVtx_pt[ind[0]]")
+  d = d.Define("ScoutingMuonNoVtxLead_eta", "ScoutingMuonNoVtx_eta[ind[1]]").Define("ScoutingMuonNoVtxSub_eta", "ScoutingMuonNoVtx_eta[ind[0]]")
+  d = d.Define("ScoutingMuonNoVtxLead_phi", "ScoutingMuonNoVtx_phi[ind[1]]").Define("ScoutingMuonNoVtxSub_phi", "ScoutingMuonNoVtx_phi[ind[0]]")
+  d = d.Define("ScoutingMuonNoVtx_deltaPhi", "ScoutingMuonNoVtxLead_phi - ScoutingMuonNoVtxSub_phi")
+  d = d.Define("ScoutingMuonNoVtx_deltaEta", "ScoutingMuonNoVtxLead_eta - ScoutingMuonNoVtxSub_eta")
+  d = d.Define("ScoutingMuonNoVtx_deltaR", "sqrt(pow(ScoutingMuonNoVtx_deltaPhi, 2) + pow(ScoutingMuonNoVtx_deltaEta, 2))")
+
+  d = d.Define("dimuonKinematics", 'dimuonKinematics(ScoutingMuonNoVtx_pt, ScoutingMuonNoVtx_eta, ScoutingMuonNoVtx_phi)')
+  d = d.Define("ScoutingMuonNoVtxPair_pt", "dimuonKinematics[0]")
+  d = d.Define("ScoutingMuonNoVtxPair_eta", "dimuonKinematics[1]")
+  d = d.Define("ScoutingMuonNoVtxPair_phi", "dimuonKinematics[2]")
+  d = d.Define("ScoutingMuonNoVtxPair_mass", "dimuonKinematics[3]")
+  d = d.Define("ScoutingMuonNoVtxPair_Y", "dimuonKinematics[4]")
+
+  d = d.Define("rTrkIso", "ScoutingMuonNoVtx_trackIso/ScoutingMuonNoVtx_pt" , {"ScoutingMuonNoVtx_pt", "ScoutingMuonNoVtx_trackIso"})
+  d = d.Define("rEcalIso", "ScoutingMuonNoVtx_ecalIso/ScoutingMuonNoVtx_pt" , {"ScoutingMuonNoVtx_pt", "ScoutingMuonNoVtx_ecalIso"})
+  d = d.Define("rHcalIso", "ScoutingMuonNoVtx_hcalIso/ScoutingMuonNoVtx_pt" , {"ScoutingMuonNoVtx_pt", "ScoutingMuonNoVtx_hcalIso"})
+
+  d = d.Define("TruePFJet_ind", 'TruePFJet(ScoutingPFJet_pt, ScoutingPFJet_eta, ScoutingPFJet_phi, ScoutingMuonNoVtx_eta, ScoutingMuonNoVtx_phi)')
+  d = d.Define("TruePFJet_pt", 'ScoutingPFJet_pt[TruePFJet_ind]')
+  d = d.Define("nTruePFJet", "TruePFJet_pt.size()")
+  d = d.Define("TruePFJet_HT", 'Sum(TruePFJet_pt)')
+
+  # # # # d = d.Define("TruePFJetRecluster_ind", 'TruePFJet(ScoutingPFJetRecluster_pt, ScoutingPFJetRecluster_eta, ScoutingPFJetRecluster_phi, ScoutingMuonNoVtx_eta, ScoutingMuonNoVtx_phi)')
+  # # # d = d.Define("TruePFJetRecluster_pt", 'ScoutingPFJetRecluster_pt[TruePFJetRecluster_ind]')
+  # # d = d.Define("nTruePFJetRecluster", "TruePFJetRecluster_pt.size()")
+  # # d = d.Define("TruePFJetRecluster_HT", 'Sum(TruePFJetRecluster_pt)')
 
   # Filter the events
-  d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream")
+  d = d.Filter("DST_PFScouting_DoubleMuon", "HLT Scouting Stream")  #2024
+  # d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream") #2022
   d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
-  d = d.Filter("ScoutingMuon_diMass > 76 && ScoutingMuon_diMass < 106", "Z peak")
-  d = d.Filter("abs(ScoutingMuon_eta[0]) < 0.9 && abs(ScoutingMuon_eta[1]) < 0.9",\
-                "ignore event badly selected by trigger")
-  d = d.Filter('leadpt/ScoutingMuon_diMass > 0.45')\
-         .Filter('subpt/ScoutingMuon_diMass > 0.25', "leptons are decay products of the original boson")
+  d = d.Filter("nScoutingMuonNoVtx == 2")
+  d = d.Filter("ScoutingMuonNoVtx_charge[0]*ScoutingMuonNoVtx_charge[1] == -1", "Opposite charge")
+  d = d.Filter("abs(ScoutingMuonNoVtx_eta[0]) < 2.0 && abs(ScoutingMuonNoVtx_eta[1]) < 2.0",\
+                "eta-cut")
+  d = d.Filter("ScoutingMuonNoVtx_pt[0] > 5.0 && ScoutingMuonNoVtx_pt[1] > 5.0", "pt-cut")
+  d = d.Filter('All(rTrkIso < 0.03)', "Muons are isolated in the tracker: ")
+  d = d.Filter("All(ScoutingMuonNoVtx_trk_chi2/ScoutingMuonNoVtx_trk_ndof < 10)", "Track of the muons are nicely reconstructed")
+  # d = d.Filter('All(rEcalIso < 0.4)', "Muons are isolated in the ECAL: ")
+  d = d.Filter('ScoutingMuonNoVtxSub_pt/ScoutingMuonNoVtxPair_mass > 0.25')\
+      .Filter('ScoutingMuonNoVtxSub_pt/ScoutingMuonNoVtxPair_mass > 0.45', "leptons are decay products of the original boson")
 
   # Separate samples and add them to the sample list
   samples = []
-  dD = d.Filter('type == "Data"')
-  samples.append(("Data", dD))
-  dMC = d.Filter('type == "MC_DY" or type == "MC_QCD" or type == "MC_TT"')
-  dDY = dMC.Filter('type == "MC_DY"')
-  samples.append(("DY", dDY))
-  dQCD = dMC.Filter('type == "MC_QCD"')
+  dMC = d.Filter('isMC == "True"', "isMC")
+  dDY2Mu = dMC.Filter('sample == "DYto2Mu"', "isDY")
+  samples.append(("DYto2Mu", dDY2Mu))
+  dQCD = dMC.Filter('sample == "QCD"')
   samples.append(("QCD", dQCD))
-  dTT = dMC.Filter('type == "MC_TT"', "is TT MC")
+  dTT = dMC.Filter('sample == "TTto2l2nu"', "is TT MC")
   samples.append(("TT", dTT))
+  dDY2Tau = dMC.Filter(('sample == "DYto2Tau"'))
+  samples.append(("DYto2Tau", dDY2Tau))
+  dD = d.Filter('isMC != "True"')
+  dD = dD.Filter("run == 386604")
+  samples.append(("Data", dD))
 
   # Loop over sample to make histograms for each isolation selection
   plots = ranges.keys()
   hists_s = {} # Declare the dictionary where histograms w ill be stored
 
   for df_label, df in samples :
-    # Separate isolation type
-    df_biso  = df.Filter('All(rTrkIso < 0.15)', "Muons are isolated : ")
-    df_siso  = df.Filter('rTrkIso[ind[1]] < 0.15 && rTrkIso[ind[0]] >= 0.15', "leading muons is isolated : ")
-    df_siso  = df_siso.Filter('ScoutingMuon_pt[ind[1]] > 15')
-    df_niso  = df.Filter('All(rTrkIso >= 0.15)', "Muons are not isolated")
-    df_isos = [
-              ("NIReq", df),
-              ("Biso", df_biso),
-              ("Siso", df_siso),
-              ("Niso", df_niso)
+    # Separate mass windows
+    d_ups = df.Filter("ScoutingMuonNoVtxPair_mass < 20 && ScoutingMuonNoVtxPair_mass > 10", "Under Upsilon influence")
+    d_QCD = df.Filter("ScoutingMuonNoVtxPair_mass < 50 && ScoutingMuonNoVtxPair_mass > 20", "Bulk")
+    d_W = df.Filter("ScoutingMuonNoVtxPair_mass > 50 && ScoutingMuonNoVtxPair_mass < 76", "Under W influence")
+    d_Z = df.Filter("ScoutingMuonNoVtxPair_mass > 76 && ScoutingMuonNoVtxPair_mass < 106", "Under Z influence")
+    df_massWindows = [
+              ("Incl", df),
+              ("Upsilon", d_ups),
+              ("QCD", d_QCD),
+              ("W", d_W),
+              ("Z", d_Z)
               ]
-
-
-    for label_iso, df_iso in df_isos :
-
+    for label_mass, df_mass in df_massWindows :
+      if (df_label == "Data" and label_mass == "Incl") : 
+        rep = df_mass.Report()
       # Book Histograms for each variable
       for plot in plots :
-        hkey = "{}_{}_{}".format(df_label, plot, label_iso)
-        hists_s[hkey] = bookHist(df_iso, plot, ranges[plot])
+        hkey = "{}_{}_{}".format(df_label, plot, label_mass)
+        print("Booking : ", hkey)
+        hists_s[hkey] = bookHist(df_mass, plot, ranges[plot])
 
-  # dTT.Report().Print()
   # Write histograms in the file
   for hkey in hists_s :
+    print("Writing : ", hkey)
     writeHist(hists_s[hkey], hkey)
 
-  d.GetNRuns()
+  rep.Print()
   outf.Close()
 
 if __name__ == "__main__" :

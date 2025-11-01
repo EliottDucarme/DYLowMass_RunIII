@@ -6,56 +6,67 @@ ROOT.gStyle.SetOptStat(0)
 
 # Define style
 import cmsstyle as CMS
+CMS.setCMSStyle()
 CMS.SetExtraText("Preliminary")
-CMS.SetLumi("3.08")
+CMS.SetLumi(11.417)
+CMS.SetEnergy(13.6)
 
 # Declare labels
 labels = {
-  "lead_pt" : "p_{T}^{#mu} / GeV",
-  "sub_pt" : "p_{T}^{#mu} / GeV",
-  "lead_eta" : "#eta",
-  "sub_eta" : "#eta",
-  "lead_phi" : "#phi",
-  "sub_phi" : "#phi",
-  "diPt" : "p_{T}^{#mu#mu} / GeV",
-  "diY" : "y^{#mu #mu}",
-  "diMass" : "M^{#mu#mu} / GeV",
-  "diMassZ" : "M^{#mu#mu} / GeV",
-  "diMassLow" : "M^{#mu#mu} / GeV",
-  "diEta"   : "#eta^{#mu#mu}",
-  "dimassQCDscale" : "M^{#mu#mu} / GeV",
-  "dimassDYscale" : "M^{#mu#mu} / GeV",
-  "trkIsolation" : "I^{#mu}",
-  "ECalIsolation" : "I^{#mu}",
-  "HCalIsolation" : "I^{#mu}",
-  "relTrkIso"     : "I^{#mu}/p^{#mu}",
-  "relEcalIso"    : "I^{#mu}/p^{#mu}",
-  "relHcalIso"     : "I^{#mu}/p^{#mu}",
+  # "lead_pt" : "p_{T}^{#mu} / GeV",
+  # "sub_pt" : "p_{T}^{#mu} / GeV",
+  # "lead_eta" : "#eta",
+  # "sub_eta" : "#eta",
+  # "lead_phi" : "#phi",
+  # "sub_phi" : "#phi",
+  # "ScoutingMuonVtxPair_Pt" : "p_{T}^{#mu#mu} / GeV",
+  # "ScoutingMuonVtxPair_PtLow" : "p_{T}^{#mu#mu} / GeV",
+  # "ScoutingMuonVtxPair_Y" : "Y^{#mu #mu}",
+  # "ScoutingMuonVtxPair_mass" : "M^{#mu#mu} / GeV",
+  # "ScoutingMuonVtxPair_massZ" : "M^{#mu#mu} / GeV",
+  # "ScoutingMuonVtxPair_eta"   : "#eta^{#mu#mu}",
+  # "trkIsolation" : "I^{#mu} / GeV",
+  # "ECalIsolation" : "I^{#mu} / GeV",
+  # "HCalIsolation" : "I^{#mu} / GeV",
+  # "relTrkIso"     : "I^{#mu}/p^{#mu}",
+  # "relEcalIso"    : "I^{#mu}/p^{#mu}",
+  # "relHcalIso"     : "I^{#mu}/p^{#mu}",
+  # "TruePFJet_HT" : "H_{T} / GeV",
+  # "TruePFJet_pt" : "p_{T} / GeV",
+  # "nTruePFJet" : "N_{PFJet}",
+  # "nScoutingPFJet" : "N_{PFJet}",
+  # "nScoutingPrimaryVertex" : "N_{Vtx}",
+  # "PFIso"     : "I^{#mu} / GeV",
+  # "relPFIso"     : "I^{#mu}/p^{#mu}",
   # "Strip_Hit" : "# Strip Hit",
   # "Pixel_Hit" : "# Pixel Hit",
   # "Tracker_Hit" : "# Tracker Layer",
   # "MuonChamber_Hit" : "# Muon Chamber Hit",
   # "MatchedStation" : "# Matched Station",
+  "ScoutingMuonVtx_trk_dxy" : "d_{xy} ",
+  "ScoutingMuonVtx_trk_dz" : "d_{z}",
   }
 
 # Set colors
 colors = {
-  "DY" : ROOT.TColor.GetColor(155, 152, 204),
-  "QCD" : ROOT.TColor.GetColor(222, 90, 106),
-  "TT" : ROOT.TColor.GetColor(228, 37, 54)
+  "DYto2Mu" : CMS.p10.kBlue,
+  "DYto2Tau" : CMS.p10.kViolet,
+  "QCD" : CMS.p10.kRed,
+  "TT" : CMS.p10.kYellow
 }
 
 # Declare isolation level
-isos = [
-  "NIReq",
-  "Biso",
-  "Siso",
-  "Niso"
+massWindows = [
+      "Incl",
+  #    "Upsilon",
+ #     "QCD",
+#      "W",
+#      "Z"
    ]
 
 # Retrieve histograms based on process, variable and isolation
-def getHistogram(tfile, name, variable, iso, tag=""):
-    name = "{}_{}_{}{}".format(name, variable, iso, tag)
+def getHistogram(tfile, name, variable, mass, tag=""):
+    name = "{}_{}_{}{}".format(name, variable, mass, tag)
     h = tfile.Get(name)
     if not h:
         raise Exception("Failed to load histogram {}.".format(name))
@@ -64,58 +75,72 @@ def getHistogram(tfile, name, variable, iso, tag=""):
 def getScaleFactor() :
   inf_N = "Hist/histograms.root"
   inf = ROOT.TFile(inf_N, "READ")
-  # sim
-  scaleDY_dy = getHistogram( inf, "DY", "dimassDYscale", "Biso")
-  scaleDY_qcd = getHistogram( inf, "QCD", "dimassDYscale", "Biso")
-  dy_dy = scaleDY_dy.GetBinContent(1)
-  dy_qcd = scaleDY_qcd.GetBinContent(1)
 
-  scaleQCD_qcd = getHistogram( inf, "QCD", "dimassQCDscale", "Niso")
-  scaleQCD_dy = getHistogram( inf, "DY", "dimassQCDscale", "Niso")
-  qcd_qcd = scaleQCD_qcd.GetBinContent(1)
-  qcd_dy = scaleQCD_dy.GetBinContent(1)
+  # sim
+  scaleDY_DY2mu= getHistogram( inf, "DYto2Mu", "ScoutingMuonVtxPair_mass", "Z")
+  scaleDY_qcd = getHistogram( inf, "QCD", "ScoutingMuonVtxPair_mass", "Z")
+  scaleDY_TT = getHistogram( inf, "TT", "ScoutingMuonVtxPair_mass", "Z")
+  scaleDY_DY2tau = getHistogram( inf, "DYto2Tau", "ScoutingMuonVtxPair_mass", "Z")
+  dy_DY2mu = scaleDY_DY2mu.Integral()
+  dy_qcd = scaleDY_qcd.Integral()
+  dy_TT = scaleDY_TT.Integral()
+  dy_DY2tau = scaleDY_DY2tau.Integral()
+
+  # scaleQCD_qcd = getHistogram( inf, "QCD", "ScoutingMuonVtxPair_mass", "QCD")
+  # scaleQCD_dy = getHistogram( inf, "DYto2Mu", "ScoutingMuonVtxPair_mass", "QCD")
+  # scaleQCD_TT = getHistogram( inf, "TT", "ScoutingMuonVtxPair_mass", "QCD")
+  # scaleQCD_DY2tau = getHistogram( inf, "DYto2Tau", "ScoutingMuonVtxPair_mass", "QCD")
+  # bckg_qcd = scaleQCD_qcd.Integral()
+  # bckg_TT = scaleDY_TT.Integral()
+  # bckg_DY2tau = scaleDY_DY2tau.Integral()
+  # bckg_dy = scaleQCD_dy.Integral()
+  # bckg = bckg_qcd + bckg_TT + bckg_DY2tau
 
   # real stuff
-  DATA_dy = getHistogram( inf, "Data", "dimassDYscale", "Biso")
-  data_dy = DATA_dy.GetBinContent(1)
+  data_dy = getHistogram( inf, "Data", "ScoutingMuonVtxPair_mass", "Z")
+  data_dy = data_dy.Integral()
 
-  DATA_qcd = getHistogram( inf, "Data", "dimassQCDscale", "Niso")
-  data_qcd = DATA_qcd.GetBinContent(1)
+  # data_bckg = getHistogram( inf, "Data", "ScoutingMuonVtxPair_mass", "QCD")
+  # data_bckg = data_bckg.Integral()
 
   # Substract contribution for the other process
   # and compute scale factor
-  data_dy = data_dy - dy_qcd
-  rdy = data_dy/dy_dy
+  # data_dy = data_dy - dy_qcd - dy_DY2tau - dy_TT        #to use on signal
+  rdy = data_dy/(dy_DY2mu + dy_qcd + dy_DY2tau +  dy_TT)  # to use on data
 
-  data_qcd = data_qcd - qcd_dy
-  if data_qcd == 0 :
-     rqcd = 1
-  else :
-    rqcd = data_qcd/qcd_qcd
-  return rdy, rqcd
+  # data_bckg = data_bckg - bckg_dy
+  # if data_bckg == 0 :
+  #    rqcd = 1
+  # else :
+  #   rqcd = data_bckg/bckg
+  return rdy, 1.0
 
-def main(var, iso, scale):
+def main(var, mass, scale):
   inf_n = "Hist/histograms.root"
   inf = ROOT.TFile(inf_n, "READ")
 
   # # Get simulation
-  dy = getHistogram( inf, "DY", var, iso)
-  dy.Scale(scale[0])
-  qcd = getHistogram( inf, "QCD", var, iso)
-  qcd.Scale(scale[1])
-  tt = getHistogram( inf, "TT", var, iso)
-  tt.Scale(scale[1])
-
+  dyMu = getHistogram( inf, "DYto2Mu", var, mass)
+  dyMu.Scale(scale[0])
+  dyTau = getHistogram( inf, "DYto2Tau", var, mass)
+  dyTau.Scale(scale[0])
+  qcd = getHistogram( inf, "QCD", var, mass)
+  qcd.Scale(scale[0])
+  tt = getHistogram( inf, "TT", var, mass)
+  tt.Scale(scale[0])
 
   # Get the real stuff
-  data = getHistogram( inf, "Data", var, iso)
+  data = getHistogram( inf, "Data", var, mass)
+  # data.Scale(1/scale[0])
+
 
   # draw a clone of the ratio plot
   # a canvas that is not going to be saved
   tmpc = ROOT.TCanvas("", "", 600, 600)
-  mc = qcd.Clone()
-  mc.Add(dy)
-  # mc.Add(tt)
+  mc = dyMu.Clone()
+  mc.Add(qcd)
+  mc.Add(tt)
+  mc.Add(dyTau)
   ratio = ROOT.TRatioPlot(data, mc)
   ratio.Draw()
   r_mean = ratio.GetLowerRefGraph().GetMean(2)
@@ -129,7 +154,7 @@ def main(var, iso, scale):
   xlow = data.GetBinLowEdge(1)
   xhigh = data.GetBinLowEdge(data.GetNbinsX()+1)
   c = CMS.cmsDiCanvas(var, xlow, xhigh, \
-        1, data.GetMaximum()*100, r_min, r_max, \
+        min((data.GetMaximum())/(10**5),1.0), data.GetMaximum()*100, r_min, r_max, \
           labels[var], "Entries", "Data/MC")
 
   # Make legend
@@ -140,9 +165,10 @@ def main(var, iso, scale):
   stack = ROOT.THStack("", "")
   ROOT.gPad.SetLogy()
   samples = {
+              "#gamma^{*}/Z -> #tau #tau"  : dyTau,
               "t#bar{t} #rightarrow 2l2#nu" : tt,
-              "QCD, p^{#mu}_{T} > 5 GeV"  : qcd,
-              "Drell-Yan"                 : dy
+              "#gamma^{*}/Z -> #mu #mu"  : dyMu,
+              "QCD, p^{#mu}_{T} > 5 GeV"  : qcd
               }
   CMS.cmsDrawStack(stack, legend, samples, data)
   data.SetStats(0)
@@ -179,12 +205,14 @@ def main(var, iso, scale):
   latex.SetTextFont(42)
 
   # Save
-  c.SaveAs("Hist/Main/{}/{}.pdf".format(iso, var))
-  c.SaveAs("Hist/Main/{}/{}.png".format(iso, var))
+  c.SaveAs("Hist/Main/{}/{}.pdf".format(mass, var))
+  c.SaveAs("Hist/Main/{}/{}.png".format(mass, var))
 
 # Loop over all variable names and make a plot for each
 if __name__ == "__main__":
-  # scale_dy, scale_qcd = getScaleFactor()
+  ROOT.EnableImplicitMT(16)
+  # scale_dyMu, scale_bckg = getScaleFactor()
+  # print(scale_dyMu, scale_bckg)
   for variable in labels.keys():
-      for iso in isos :
-        main(variable, iso, (1.0, 1.0))
+      for mass in massWindows :
+        main(variable, mass, (1.0, 1.0))
