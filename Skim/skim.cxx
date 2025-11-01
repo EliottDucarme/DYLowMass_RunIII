@@ -27,7 +27,7 @@ RVec<T> dimuonKinematic(const RVec<T>& pt, const RVec<T>& eta, const RVec<T>& ph
   T M = P.M();
   T E = P.E();
   T Eta = P.Eta();
-  T Y = log( (E + Pz) / pow( pow(M, 2) + pow(Pt, 2) , 1/2) );
+  T Y = P.Rapidity();
   T Phi = P.Phi();
   RVec<T> dimuon {Pt, Eta, Phi, M, Y};
 
@@ -36,27 +36,27 @@ RVec<T> dimuonKinematic(const RVec<T>& pt, const RVec<T>& eta, const RVec<T>& ph
 
 void Cut(std::string inf, std::string type)
 {
-  ROOT::RDataFrame d("Events", inf);
+  ROOT::RDataFrame d("Events", inf);  
+  ROOT::RDF::Experimental::AddProgressBar(d);
   auto d1 = d
-    .Define("dimuonKinematic", dimuonKinematic<float_t>, {"ScoutingMuon_pt", "ScoutingMuon_eta", "ScoutingMuon_phi"} )
-    .Define("ScoutingMuon_diMass", [](RVec<float_t> P){return P[3];}, {"dimuonKinematic"})
-    .Define("ScoutingMuon_diPt", [](RVec<float_t> P){return P[0];}, {"dimuonKinematic"})
-    .Define("ScoutingMuon_diEta", [](RVec<float_t> P){return P[1];}, {"dimuonKinematic"})
-    .Define("ScoutingMuon_diY", [](RVec<float_t> P){return P[4];}, {"dimuonKinematic"})
-    .Define("ScoutingMuon_diPhi", [](RVec<float_t> P){return P[2];}, {"dimuonKinematic"})
-    .Define("rTrkIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuon_trackIso", "ScoutingMuon_pt"})
-    .Define("rECalIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuon_ecalIso", "ScoutingMuon_pt"})
-    .Define("rHCalIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuon_hcalIso", "ScoutingMuon_pt"})
+    .Define("dimuonKinematic", dimuonKinematic<float_t>, {"ScoutingMuonVtx_pt", "ScoutingMuonVtx_eta", "ScoutingMuonVtx_phi"} )
+    .Define("ScoutingMuonVtxPair_mass", [](RVec<float_t> P){return P[3];}, {"dimuonKinematic"})
+    .Define("ScoutingMuonVtxPair_pt", [](RVec<float_t> P){return P[0];}, {"dimuonKinematic"})
+    .Define("ScoutingMuonVtxPair_eta", [](RVec<float_t> P){return P[1];}, {"dimuonKinematic"})
+    .Define("ScoutingMuonVtxPair_y", [](RVec<float_t> P){return P[4];}, {"dimuonKinematic"})
+    .Define("ScoutingMuonVtxPair_phi", [](RVec<float_t> P){return P[2];}, {"dimuonKinematic"})
+    .Define("rTrkIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuonVtx_trackIso", "ScoutingMuonVtx_pt"})
+    .Define("rECalIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuonVtx_ecalIso", "ScoutingMuonVtx_pt"})
+    .Define("rHCalIso", [](RVec<float> i, RVec<float> pt){ return i/pt ;}, {"ScoutingMuonVtx_hcalIso", "ScoutingMuonVtx_pt"})
     // Skimming
     // Should not be asked for trigger efficiency, biasing the computation.
-    .Filter([](Int_t n){ return n == 2;}, {"nScoutingMuon"}, "Exactly two muons")
-    .Filter([](RVec<float_t> eta, RVec<float_t> pt){return All(abs(eta) < 2.4) && All(pt > 5.0) ;}, {"ScoutingMuon_eta", "ScoutingMuon_pt"}, "In Eta and Pt Range")
-    .Filter([](float_t M){ return M > 10 ; }, {"ScoutingMuon_diMass"}, "Dimuon Mass > 10 Gev")
+    .Filter([](Int_t n){ return n == 2;}, {"nScoutingMuonVtx"}, "Exactly two muons")
+    .Filter([](RVec<float_t> eta, RVec<float_t> pt){return All(abs(eta) < 2.4) && All(pt > 5.0) ;}, {"ScoutingMuonVtx_eta", "ScoutingMuonVtx_pt"}, "In Eta and Pt Range")
+    .Filter([](float_t M){ return (M > 5 && M < 120); }, {"ScoutingMuonVtxPair_mass"}, "Dimuon Mass in the analysis range")
     ;
 
 
-  std::string var =  "^run$|^event$|^luminosityBlock$|^(.|)L1Mu.*$|^(.|)ScoutingMuon.*$| \
-          nScoutingDisplacedVertex|^L1_DoubleMu.*$|^DST.*$|genWeight|^Gen.*$";
+  std::string var =  "^run$|^event$|^luminosityBlock$|^(.|)ScoutingMuonVtx_.*$|^n.*$|^L1_DoubleMu.*$|^DST.*$|^genWeight$|^GenPart_.*$|^(.|)ScoutingPFJet.*$";
 
   if ( !type.compare("Data") ) {
     auto d2 = d1.Define("genWeight", [](){return 1.0f;});
