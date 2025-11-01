@@ -16,8 +16,8 @@ Help(){
     echo -e "${RED}1)                Usage:   $0  <Dataset>  <Year>  <Era>  <Output>${NC}"
     printf "=%.0s" {1..114}; printf "\n"
     echo
-    echo "Dataset            ---> Data / DY / QCD / TT"
-    echo "Year               ---> 2022"
+    echo "Dataset            ---> Data / DYto2Mu / DYto2Tau / QCD / TT"
+    echo "Year               ---> 2022 / 2024"
     echo "Era or MC Binning  ---> BCDEFG || XXtoYY  MC (Depending on the Year and Dataset: check Datasets.md)"
     echo "Output             ---> Output directory to be created in /pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/<Year>/<Dataset>_<Era>/"
     echo
@@ -39,7 +39,7 @@ folder=$5
 part=$4
 
 # Check if dataset name is correct
-if ! [[ "$dataset" =~ ^(Data|DY|QCD|TT) ]]
+if ! [[ "$dataset" =~ ^(Data|DYto2Mu|DYto2Tau|QCD|TT) ]]
 then
     echo
     echo -e "${RED}Error : Invalid Dataset name!${NC}"
@@ -48,7 +48,7 @@ then
 fi
 
 # Check if year is correct
-if ! [[ "$year" =~ ^(2022) ]]; then
+if ! [[ "$year" =~ ^(2022) || "$year" =~ ^(2024) ]]; then
     echo
     echo -e "${RED}Error : Invalid Year!${NC}"
     Help
@@ -63,9 +63,9 @@ if [[ $year == 2022 && $dataset == "Data" ]]; then
       Help
       exit 1
    fi
-elif [[ $year == 2022 && $dataset == "DY" ]]; then
+elif [[ $year == 2022 && $dataset == "DYto2Mu" ]]; then
    if ! [[ "$era" == "10to50" || "$era" == "50" ]]; then
-      echo -e "${RED}Error : Invalid Binning for DY ! ${NC}"
+      echo -e "${RED}Error : Invalid Binning for DYto2Mu ! ${NC}"
       echo -e "${RED} 10to50, 50 ${NC}"
       Help
       exit 1
@@ -87,12 +87,52 @@ elif [[ $year == 2022 && $dataset == "QCD" ]]; then
       Help
       exit 1
    fi
+elif [[ $year == 2024 && $dataset == "Data" ]]; then
+   if ! [[ "$era" =~ ^(I) ]]; then
+      echo -e "${RED}Error : Invalid era for year 2024!${NC}"
+      echo -e "${RED}2024 eras : B C D E F G${NC}"
+      Help
+      exit 1
+   fi
+elif [[ $year == 2024 && $dataset == "DYto2Mu" ]]; then
+   if ! [[ "$era" == "10to50" || "$era" == "50" ]]; then
+      echo -e "${RED}Error : Invalid Binning for DYto2Mu ! ${NC}"
+      echo -e "${RED} 10to50, 50 ${NC}"
+      Help
+      exit 1
+   fi
+elif [[ $year == 2024 && $dataset == "DYto2Tau" ]]; then
+   if ! [[ "$era" == "50to120" ]]; then
+      echo -e "${RED}Error : Invalid Binning for DYto2Tau ! ${NC}"
+      echo -e "${RED} 50to120 ${NC}"
+      Help
+      exit 1
+   fi
+elif [[ $year == 2024 && $dataset == "TT" ]]; then
+   if ! [[ "$era" == "Incl" ]]; then
+      echo -e "${RED}Error : Invalid Binning for TT ! ${NC}"
+      echo -e "${RED} Incl ${NC}"
+      Help
+      exit 1
+   fi
+elif [[ $year == 2024 && $dataset == "QCD" ]]; then
+   if ! [[ "$era" == "15to20" || "$era" == "20to30" || "$era" == "30to50" || "$era" == "50to80" ||
+   "$era" == "80to120" || "$era" == "120to170" || "$era" == "170to300" ||
+   "$era" == "300to470" || "$era" == "470to600" || "$era" == "600to800" ||
+   "$era" == "800to1000" || "$era" == "1000" ]]; then
+      echo -e "${RED}Error : Invalid binning for QCD!${NC}"
+      echo -e "${RED}QCD Binning : 15to20/20to30/... ${NC}"
+      Help
+      exit 1
+   fi
 fi
 
 # The output directory in personal pnfs store area
 if [[ $dataset == "QCD" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/PT-${era}/${folder}
-elif [[ $dataset == "DY" ]]; then
+elif [[ $dataset == "DYto2Mu" ]]; then
+   output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/M-${era}/${folder}
+elif [[ $dataset == "DYto2Tau" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/M-${era}/${folder}
 elif [[ $dataset == "TT" ]]; then
    output=/pnfs/iihe/cms/store/user/${USER}/ScoutingSkim/${year}/${dataset}/${folder}
@@ -101,7 +141,7 @@ elif [[ $dataset == "Data" ]]; then
 else
   echo
   echo -e "${RED}Dataset is invalid !${NC}"
-  echo -e "${RED}Use Data, QCD or DY${NC}"
+  echo -e "${RED}Use Data, QCD or DYto2Mu${NC}"
   echo
   Help
   exit 1
@@ -112,23 +152,35 @@ then
     mkdir -p $output
 else
     echo
-    echo -e "${RED}The directory $output already exists, please give another Output name!${NC}"
+    echo -e "${RED}The directory $output alreaDYto2Mu exists, please give another Output name!${NC}"
     echo
     exit 1
 fi
 
-# Running on NANOAOD or JME custom NANOAOD based on the last argument
-if [[ "$dataset" == "Data" ]]; then
+# Running on NANOAOD 
+if [[  $year == 2022 && "$dataset" == "Data" ]]; then
   # files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON_${part}/*/0000/*71.root"    # Small subset of files
   files="/pnfs/iihe/cms/store/user/educarme/NanoScouting_Run3_v01/ScoutingPFRun3/crab_Scouting_${year}${era}v1_GoldenJSON_${part}/*/*/*.root"       # All files
 # MC
-elif [[ $dataset == "QCD" ]]; then
+elif [[  $year == 2022 && $dataset == "QCD" ]]; then
   files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/QCD_PT-${era}_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/*/*/*/*.root"
-elif [[ $dataset == "TT" ]]; then
+elif [[  $year == 2022 && $dataset == "TT" ]]; then
   files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/*/*.root"              # All files
-elif [[ $dataset == "DY" ]]; then
-  # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root"  # Small subset of files
-  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root"         # All files
+elif [[  $year == 2022 && $dataset == "DYto2Mu" ]]; then
+  # files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2Muto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/0000/*71.root"  # Small subset of files
+  files="/pnfs/iihe/cms/store/user/educarme/ScoutingNANO_MC${year}_v02/DYto2Muto2L-2Jets_MLL-${era}_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/*/*/*/*.root"         # All files
+elif [[  $year == 2024 && "$dataset" == "Data" ]]; then
+   files="/pnfs/iihe/cms/store/user/educarme/Run3Skim/2024/BigFiles/ScoutingPFRun3_2024_Era${era}/*"
+# MC
+elif [[  $year == 2024 && $dataset == "QCD" ]]; then
+  files="/pnfs/iihe/cms/store/user/educarme/Run3Skim/2024/BigFiles/QCD_Pt-${era}_2024/*"
+elif [[  $year == 2024 && $dataset == "TT" ]]; then
+  files="/pnfs/iihe/cms/store/user/educarme/Run3Skim/2024/BigFiles/TTto2l2nu_2024/*"       
+elif [[  $year == 2024 && $dataset == "DYto2Mu" ]]; then
+  files="/pnfs/iihe/cms/store/user/educarme/Run3Skim/2024/BigFiles/DYto2Mu_Mll-${era}_2024/*"           
+#   files="/pnfs/iihe/cms/store/user/educarme/Run3Skim/2024/BigFiles/DYto2Mu_Mll-${era}_2024/DYto2Mu_Mll-50_2024_10.root"           
+elif [[  $year == 2024 && $dataset == "DYto2Tau" ]]; then
+  files="/pnfs/iihe/cms/store/user/educarme/Run3Skim/2024/BigFiles/DYto2Tau_Mll-${era}_2024/*"       
 fi
 
 # Modify the template scripts and store the submitted files in the submission directory
