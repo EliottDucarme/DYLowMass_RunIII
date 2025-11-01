@@ -5,8 +5,7 @@ import sys
 import os
 import numpy as np
 from array import array
-from helper import *
-
+ROOT.gInterpreter.ProcessLine('#include "helper.h"')
 
 def writeHist(h, name): #Write it !
   h.SetName(name)
@@ -52,7 +51,6 @@ def correlationPtVsMll(samples) :
 
   for i in range(nx) : 
     x_i = bw*i + x_start
-    print(x_i)
     x.append(x_i)
 
     hSubData = hists["subPtvsMll_Data"].Clone() 
@@ -69,7 +67,7 @@ def correlationPtVsMll(samples) :
     dySubRMS = hSubDy.GetRMS(2)
     dySubRMSs.append(dySubRMS)
 
-    hSubQcd = hists["subPtvsMll_QCD"].Clone()
+    hSubQcd = hists["subPtvsMll_Bkg"].Clone()
     hSubQcd.GetXaxis().SetRangeUser(x_start + bw*i, 11 + bw*i)
     qcdSubAvg = hSubQcd.GetMean(2)
     qcdSubAvgs.append(qcdSubAvg)
@@ -90,7 +88,7 @@ def correlationPtVsMll(samples) :
     dyLeadRMS = hLeadDy.GetRMS(2)
     dyLeadRMSs.append(dyLeadRMS)
 
-    hLeadQcd = hists["leadPtvsMll_QCD"].Clone()
+    hLeadQcd = hists["leadPtvsMll_Bkg"].Clone()
     hLeadQcd.GetXaxis().SetRangeUser(x_start + bw*i, 11 + bw*i)
     qcdLeadAvg = hLeadQcd.GetMean(2)
     qcdLeadAvgs.append(qcdLeadAvg)
@@ -163,28 +161,28 @@ def ratioSignalBgrnd(samples):
     writeHist(hists[h], h)
   
   ratioNo = hists["noCut_DY"].Clone()
-  ratioNo.Divide(hists["noCut_QCD"].Clone())
+  ratioNo.Divide(hists["noCut_Bkg"].Clone() + hists["noCut_DY"].Clone())
   ratioNo.SetTitle("original")
   ratioNo.SetMarkerStyle(8)
   ratioNo.SetMarkerColor(ROOT.TColor.GetColor(24, 69, 251))
   ratioNo.SetLineColor(ROOT.TColor.GetColor(24, 69, 251))
 
   ratioLead = hists["leadCut_DY"].Clone()
-  ratioLead.Divide(hists["leadCut_QCD"].Clone())
+  ratioLead.Divide(hists["leadCut_Bkg"].Clone() + hists["leadCut_DY"].Clone())
   ratioLead.SetTitle("p_{T}^{l}/M_{ll} >0.25")
   ratioLead.SetMarkerStyle(8)
   ratioLead.SetMarkerColor(ROOT.TColor.GetColor(155, 152, 204))
   ratioLead.SetLineColor(ROOT.TColor.GetColor(155, 152, 204))
 
   ratioSub = hists["subCut_DY"].Clone()
-  ratioSub.Divide(hists["subCut_QCD"].Clone())
+  ratioSub.Divide(hists["subCut_Bkg"].Clone() + hists["subCut_DY"].Clone())
   ratioSub.SetTitle("p_{T}^{s}/M_{ll} >0.25")
   ratioSub.SetMarkerStyle(8)
   ratioSub.SetMarkerColor(ROOT.TColor.GetColor(222, 90, 106))
   ratioSub.SetLineColor(ROOT.TColor.GetColor(222, 90, 106))
 
   ratioBoth = hists["bothCut_DY"].Clone()
-  ratioBoth.Divide(hists["bothCut_QCD"].Clone())
+  ratioBoth.Divide(hists["bothCut_Bkg"].Clone() + hists["bothCut_DY"].Clone())
   ratioBoth.SetTitle("p_{T}^{l}/M_{ll} >0.25 + p_{T}^{s}/M_{ll} >0.25; M^{#mu #mu}(GeV); Entries/Gev")
   ratioBoth.SetMarkerStyle(8)
   ratioBoth.SetMarkerColor(ROOT.TColor.GetColor(248, 156, 32))
@@ -210,34 +208,39 @@ def main():
 
   # Create the dataframe with the .json spec file
   ROOT.EnableImplicitMT(12)
-  d = ROOT.RDF.Experimental.FromSpec("samples.json")
+  d = ROOT.RDF.Experimental.FromSpec("samples_MC.json")
   ROOT.RDF.Experimental.AddProgressBar(d)
-  d = initializeFromJSON(d)
-  
+
+   # Take info from the spec .json file
+  d = d.DefinePerSample("xsec", 'rdfsampleinfo_.GetD("xsec")')
+  d = d.DefinePerSample("sumws", 'rdfsampleinfo_.GetD("nevents")')
+  d = d.DefinePerSample("isMC", 'rdfsampleinfo_.GetS("isMC")')
+  d = d.DefinePerSample("sample", 'rdfsampleinfo_.GetS("sample")')
+
   # Filter the events
   d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream")
   d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
 
   # Define new variables
-  d = d.Define("ind", 'sorting(ScoutingMuon_pt)', {"ScoutingMuon_pt"})
+  d = d.Define("norm", 'reweighting(xsec, sumws, genWeight, isMC, 3079.0)',{"xsec", "sumws", "genWeight", "isMC"})
+  d = d.Define("ind", 'ROOT::VecOps::Argsort(ScoutingMuon_pt)', {"ScoutingMuon_pt"})
   d = d.Define("leadpt", "ScoutingMuon_pt[ind[1]]").Define("subpt", "ScoutingMuon_pt[ind[0]]")
   d = d.Define("leadeta", "ScoutingMuon_eta[ind[1]]").Define("subeta", "ScoutingMuon_eta[ind[0]]")
   d = d.Define("leadphi", "ScoutingMuon_phi[ind[1]]").Define("subphi", "ScoutingMuon_phi[ind[0]]")
   d = d.Define("rIso", "ScoutingMuon_trackIso/ScoutingMuon_pt" , {"ScoutingMuon_pt", "ScoutingMuon_trackIso"})
   d = d.Filter('All(rIso < 0.15)', "Isolated muons")
-  # d = d, "leptons are decay products of the original boson")
 
   # Separate samples and add them to the sample list
   samples = []
-  dD = d.Filter('type == "Data"')
+  dD = d.Filter('sample == "Data"')
   samples.append(("Data", dD))
-  dDY = d.Filter('type == "MC_DY"')
+  dDY = d.Filter('sample == "DYto2Mu"')
   samples.append(("DY", dDY))
-  dQCD = d.Filter('type == "MC_QCD"')
-  samples.append(("QCD", dQCD))
+  dBkg = d.Filter('sample == "QCD" or sample == "TT"')
+  samples.append(("Bkg", dBkg))
 
   dD.Report().Print()
-  # correlationPtVsMll(samples)
+  correlationPtVsMll(samples)
   ratioSignalBgrnd(samples)
 
   
