@@ -8,7 +8,7 @@ source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_106a x86_64-el9-gcc14-opt
 echo "Done !"
 echo
 echo "Transfer and compile skim.cxx"
-rsync -aP ~/Run3/Skim/skim.cxx .
+rsync -aP ~/DYLowMass_RunIII/Skim/skim.cxx .
 g++ -o skim skim.cxx  $(root-config --cflags --libs)
 echo "Done !"
 echo

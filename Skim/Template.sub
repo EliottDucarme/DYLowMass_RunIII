@@ -15,22 +15,27 @@ log                   		= log/$(ClusterId).log
 # Input files need to be transferred to the node.                              #
 # $filename is assigned the value of one of the file names for each job queued #
 ################################################################################
-transfer_input_files            = $(filename)
+# transfer_input_files            = $(filename)
  
 ##############################################################################
 # Arguments for the executable script                                        #
 # $1 = $filename = for the input file (as explained above)                   #                                          
 # $2 = "PATH_TO_OUTPUT" will be modified from the SubmitToHTCondor.sh script #
 ##############################################################################
-arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ClusterId).$(ProcId).root $(dataset)
+arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ProcId).root
 
 ###########################################################
 # Output files to the submit machine (Default is ON_EXIT) #
 # ON_SUCCESS means if the success_exit_code=0             #
 ###########################################################
-# should_transfer_files = yes
+should_transfer_files         = NO
 # when_to_transfer_output       = ON_SUCCESS
 # when_to_transfer_output       = ON_EXIT
+
+# Adapt request
+request_cpus = 1
+request_memory = 200MB
+request_disk = 1GB
 
 ###############################
 # Job flavor definitions :    #
@@ -43,6 +48,11 @@ arguments                       = $(filename) PATH_TO_OUTPUT/output_$(ClusterId)
 # nextweek     = 1 week       #
 ###############################
 # +JobFlavour           	= microcentury
+
+# Other options
+max_idle = 200
+max_retries = 3
+
 
 ######################################################################################################
 # Job submission : one job per file "LIST_OF_FILES" will be modified from SubmitToHTCondor.sh script #

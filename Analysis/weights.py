@@ -7,14 +7,8 @@ ROOT.gROOT.SetBatch(True)
 def main():
 
   file = {
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0000/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0001/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0002/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0003/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0004/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0005/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0006/*",
-    "/user/educarme/pnfs/ScoutingNANO_MC2022_v02/TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/crab_TTto2L2Nu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/250128_140458/0007/*"
+                "/pnfs/iihe/cms/store/user/educarme/ScoutingSkim/2024/TT/250814_again/output_566711.0.root",
+                "/pnfs/iihe/cms/store/user/educarme/ScoutingSkim/2024/TT/250814_again/output_566711.1.root"
   }
   # Initialize i/o
   ROOT.EnableImplicitMT(24)
