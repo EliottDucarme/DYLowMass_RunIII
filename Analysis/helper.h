@@ -116,20 +116,20 @@ Float_t Sum(RVec<Float_t> col){
 }
 
 Float_t cosThetaCS(RVec<Float_t> pt_mu, RVec<Float_t> eta_mu, RVec<Float_t> phi_mu , RVec<Float_t> m_mu, 
-                    RVec<Float_t> pt_pair, RVec<Float_t> mass_pair, RVec<Float_t> rapidity_pair)
+                    Float_t pt_pair, Float_t mass_pair, Float_t rapidity_pair)
 {
   using PtEtaPhiMVectorD = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float>>;
 
   PtEtaPhiMVectorD mu1(pt_mu[0], eta_mu[0], phi_mu[0], m_mu[0]);
   PtEtaPhiMVectorD mu2(pt_mu[1], eta_mu[1], phi_mu[1], m_mu[1]);
 
-  pp1 = (mu1.E() + mu1.Pz())/sqrt(2);
-  pm1 = (mu1.E() - mu1.Pz())/sqrt(2);
+  Float_t pp1 = (mu1.E() + mu1.Pz())/sqrt(2);
+  Float_t pm1 = (mu1.E() - mu1.Pz())/sqrt(2);
 
-  pp2 = (mu2.E() + mu2.Pz())/sqrt(2);
-  pm2 = (mu2.E() - mu2.Pz())/sqrt(2);
+  Float_t pp2 = (mu2.E() + mu2.Pz())/sqrt(2);
+  Float_t pm2 = (mu2.E() - mu2.Pz())/sqrt(2);
 
-  cos = 2(pp1 * pm2 - pp2 * pm1)/sqrt(pow(mass_pair, 2)(pow(mass_pair, 2) + pow(pt_pair, 2))) * rapidity_pair/abs(rapidity_pair);
+  Float_t cos = 2 * (pp1 * pm2 - pp2 * pm1)/sqrt(pow(mass_pair, 2) * (pow(mass_pair, 2) + pow(pt_pair, 2))) * rapidity_pair/abs(rapidity_pair);
 
   return cos;
 }
