@@ -13,18 +13,23 @@ CMS.SetEnergy(13.6)
 
 # Declare labels
 labels = {
-  # "lead_pt" : "p_{T}^{#mu} / GeV",
-  # "sub_pt" : "p_{T}^{#mu} / GeV",
-  # "lead_eta" : "#eta",
-  # "sub_eta" : "#eta",
-  # "lead_phi" : "#phi",
-  # "sub_phi" : "#phi",
-  # "ScoutingMuonVtxPair_Pt" : "p_{T}^{#mu#mu} / GeV",
-  # "ScoutingMuonVtxPair_PtLow" : "p_{T}^{#mu#mu} / GeV",
-  # "ScoutingMuonVtxPair_Y" : "Y^{#mu #mu}",
-  # "ScoutingMuonVtxPair_mass" : "M^{#mu#mu} / GeV",
-  # "ScoutingMuonVtxPair_massZ" : "M^{#mu#mu} / GeV",
-  # "ScoutingMuonVtxPair_eta"   : "#eta^{#mu#mu}",
+  "ScoutingMuonVtxLead_pt" : "p_{T}^{#mu} / GeV",
+  "ScoutingMuonVtxSub_pt" : "p_{T}^{#mu} / GeV",
+  "ScoutingMuonVtxLead_eta" : "#eta",
+  "ScoutingMuonVtxSub_eta" : "#eta",
+  "ScoutingMuonVtxLead_phi" : "#phi",
+  "ScoutingMuonVtxSub_phi" : "#phi",
+  "ScoutingMuonVtx_deltaPhi" : "#Delta #phi",
+  "ScoutingMuonVtx_deltaEta" : "#Delta eta",
+  "ScoutingMuonVtx_deltaR" : "#Delta R",
+
+  "ScoutingMuonVtxPair_Pt" : "p_{T}^{#mu#mu} / GeV",
+  "ScoutingMuonVtxPair_PtLow" : "p_{T}^{#mu#mu} / GeV",
+  "ScoutingMuonVtxPair_Y" : "Y^{#mu #mu}",
+  "ScoutingMuonVtxPair_mass" : "M^{#mu#mu} / GeV",
+  "ScoutingMuonVtxPair_massZ" : "M^{#mu#mu} / GeV",
+  "ScoutingMuonVtxPair_eta"   : "#eta^{#mu#mu}",
+
   # "trkIsolation" : "I^{#mu} / GeV",
   # "ECalIsolation" : "I^{#mu} / GeV",
   # "HCalIsolation" : "I^{#mu} / GeV",
@@ -43,8 +48,10 @@ labels = {
   # "Tracker_Hit" : "# Tracker Layer",
   # "MuonChamber_Hit" : "# Muon Chamber Hit",
   # "MatchedStation" : "# Matched Station",
-  "ScoutingMuonVtx_trk_dxy" : "d_{xy} ",
-  "ScoutingMuonVtx_trk_dz" : "d_{z}",
+
+  "ScoutingMuonVtx_trk_dxy" : "d_{xy} [cm]",
+  "ScoutingMuonVtx_trk_dxy_short" : "d_{xy} [cm]",
+  "ScoutingMuonVtx_trk_dz" : "d_{z} [cm]",
   }
 
 # Set colors
@@ -58,10 +65,10 @@ colors = {
 # Declare isolation level
 massWindows = [
       "Incl",
-  #    "Upsilon",
- #     "QCD",
-#      "W",
-#      "Z"
+      "Upsilon",
+      "QCD",
+      "W",
+      "Z"
    ]
 
 # Retrieve histograms based on process, variable and isolation
@@ -154,7 +161,7 @@ def main(var, mass, scale):
   xlow = data.GetBinLowEdge(1)
   xhigh = data.GetBinLowEdge(data.GetNbinsX()+1)
   c = CMS.cmsDiCanvas(var, xlow, xhigh, \
-        min((data.GetMaximum())/(10**5),1.0), data.GetMaximum()*100, r_min, r_max, \
+        max((data.GetMaximum())/(10**4),1.0), data.GetMaximum()*100, r_min, r_max, \
           labels[var], "Entries", "Data/MC")
 
   # Make legend
