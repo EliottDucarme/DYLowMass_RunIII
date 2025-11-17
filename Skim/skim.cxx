@@ -56,18 +56,18 @@ void Cut(std::string inf, std::string type)
     ;
 
 
-  std::string var =  "^run$|^event$|^luminosityBlock$|^(.|)ScoutingMuonVtx_.*$|^n.*$|^L1_DoubleMu.*$|^DST.*$|^genWeight$|^GenPart_.*$|^(.|)ScoutingPFJet.*$";
+  // std::string var =  "^run$|^event$|^luminosityBlock$|^(.|)ScoutingMuon.*$|^n.*$|^L1_DoubleMu.*$|^DST.*$|^genWeight$|^GenPart_.*$|^(.|)ScoutingPFJetRecluster.*$";
 
   if ( !type.compare("Data") ) {
     auto d2 = d1.Define("genWeight", [](){return 1.0f;});
 
-  d2.Snapshot("Events", "output.root", var);
+  d2.Snapshot("Events", "output.root");
   d2.Report()->Print();
   }
   else {
     auto d2 = d1;
 
-  d2.Snapshot("Events", "output.root", var);
+  d2.Snapshot("Events", "output.root");
   d2.Report()->Print();
   }
 }
