@@ -132,4 +132,35 @@ Float_t cosThetaCS(RVec<Float_t> pt_mu, RVec<Float_t> eta_mu, RVec<Float_t> phi_
   Float_t cos = 2 * (pp1 * pm2 - pp2 * pm1)/sqrt(pow(mass_pair, 2) * (pow(mass_pair, 2) + pow(pt_pair, 2))) * rapidity_pair/abs(rapidity_pair);
 
   return cos;
+};
+
+RVec<RVec<Float_t>> computeImpactParameters(RVec<Float_t> pt, RVec<Float_t> eta, RVec<Float_t> phi, RVec<Float_t> vtx_x,
+                        RVec<Float_t> vtx_y, RVec<Float_t> vtx_z, RVec<Float_t> trk_vx,  RVec<Float_t> trk_vy, RVec<Float_t> trk_vz){
+  int vtx_closest;
+  RVec<int> vtx_inds;
+  int n_mu = pt.size();
+  int n_vtx = vtx_z.size();
+  // cout << n_trck << " " << n_vtx << endl;
+  Float_t dz = 100;
+  int ind;
+  RVec<float_t> dxys, dzs;
+  for (int i=0; i < n_mu; i++){
+    ind = vtx_inds[i];
+    auto px = pt[i] * cos(phi[i]);
+    auto py = pt[i] * sin(phi[i]);
+    auto pz = pt[i]* sinh(eta[i]);
+    auto pt2 = pt[i] * pt[i];
+
+    auto Dx = trk_vx[i] - vtx_x[0];
+    auto Dy = trk_vy[i] - vtx_y[0];
+    auto Dz = trk_vz[i] - vtx_z[0];
+
+    float_t dxy = (-Dx * py + Dy * px) / pt[i];
+    float_t dz = Dz - (Dx * px + Dy * py) * pz / pt2;
+
+    // cout << dxy << " " << dz << endl;
+    dxys.push_back(dxy);
+    dzs.push_back(dz);
+  }
+  return {dxys, dzs};
 }

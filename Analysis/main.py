@@ -16,9 +16,10 @@ ranges = {
   "ScoutingMuonVtxPair_deltaxy" : ("ScoutingMuonVtxPair_deltaxy", default_nbins, -2.0, 2.0),
   "ScoutingMuonVtxPair_deltaz" : ("ScoutingMuonVtxPair_deltaz", default_nbins, -2.0, 2.0),
 
-  "ScoutingMuonVtx_trk_dxy" : ("ScoutingMuonVtx_trk_dxy", default_nbins, -1.0, 1.0),
-  "ScoutingMuonVtx_trk_dxy_short" : ("ScoutingMuonVtx_trk_dxy", default_nbins, -0.3, 0.3),
-  "ScoutingMuonVtx_trk_dz" : ("ScoutingMuonVtx_trk_dz", default_nbins, -20.0, 20.0),
+  "ScoutingMuonVtx_dxy" : ("ScoutingMuonVtx_dxy", default_nbins, -0.5, 0.5),
+  "ScoutingMuonVtx_dxy_short" : ("ScoutingMuonVtx_dxy", default_nbins, -0.2, 0.2),
+  "ScoutingMuonVtx_dz" : ("ScoutingMuonVtx_dz", default_nbins, -10.0, 10.0),
+  "ScoutingMuonVtx_dz_short" : ("ScoutingMuonVtx_dz", default_nbins, -0.5, 0.5),
 
   "ScoutingMuonVtxLead_pt" : ("ScoutingMuonVtxSub_pt", default_nbins, 5.0, 105.0),
   "ScoutingMuonVtxSub_pt" : ("ScoutingMuonVtxSub_pt", default_nbins, 5.0, 105.0),
