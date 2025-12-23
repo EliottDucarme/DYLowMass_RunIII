@@ -49,14 +49,15 @@ ranges = {
   "TruePFJetRecluster_pt" : ("TruePFJetRecluster_pt", default_nbins, 0.0, 400.0),
 
   "nScoutingPrimaryVertex" : ("nScoutingPrimaryVertex", default_nbins, 0.0, 100.0),
-  # "ScoutingPrimaryVertex_MuonVtx_dz" : ("ScoutingPrimaryVertex_MuonVtx_dz", default_nbins, -10.0, 10.0),
-  # "ScoutingPrimaryVertex_MuonVtx_dxy" : ("ScoutingPrimaryVertex_MuonVtx_dxy", default_nbins, -1.0, 1.0),
+  "ScoutingPrimaryVertex_tracksSize" : ("ScoutingPrimaryVertex_tracksSize", default_nbins, 0, 100),
 
   "Strip_Hit" : ("ScoutingMuonVtx_nValidStripHits", 25, 0, 25),
   "Pixel_Hit" : ("ScoutingMuonVtx_nPixelLayersWithMeasurement", 10, 0, 10),
   "Tracker_Hit" : ("ScoutingMuonVtx_nTrackerLayersWithMeasurement", 18, 0, 18),
   "MuonChamber_Hit" : ("ScoutingMuonVtx_nRecoMuonChambers", 50, 0, 51),
   "MatchedStation" : ("ScoutingMuonVtx_nRecoMuonMatchedStations", 5, 0, 5),
+
+  "ScoutingMET_pt" : ("ScoutingMET_pt", default_nbins, 0, 200),
 }
 
 
@@ -75,12 +76,12 @@ def main(executor):
 
   if (executor == "cluster") : 
     client = create_connection()
-    d = ROOT.RDF.Experimental.FromSpec("samples_2024_LowPu.json", executor=client, npartitions=100)
+    d = ROOT.RDF.Experimental.FromSpec("samples_2024.json", executor=client, npartitions=60)
     ROOT.RDF.Distributed.DistributeHeaders("helper.h")
   elif (executor == "local") : 
     ROOT.gInterpreter.Declare('#include "helper.h"') 
     ROOT.EnableImplicitMT(16) 
-    d = ROOT.RDF.Experimental.FromSpec("samples_2024_LowPu.json")
+    d = ROOT.RDF.Experimental.FromSpec("samples_2024.json")
     # d = d.Range(1000000)
     ROOT.RDF.Experimental.AddProgressBar(d)
     ROOT.RDF.Experimental.ProgressHelper.ProgressHelper(1000000, progressBarWidth=5, useColors=True)
@@ -106,14 +107,19 @@ def main(executor):
   d = d.Define("ScoutingMuonVtx_deltaR", "sqrt(pow(ScoutingMuonVtx_deltaPhi, 2) + pow(ScoutingMuonVtx_deltaEta, 2))")
   d = d.Define("ScoutingMuonVtx_cosThetaCS", 'cosThetaCS(ScoutingMuonVtx_pt, ScoutingMuonVtx_eta, ScoutingMuonVtx_phi, ScoutingMuonVtx_m, ScoutingMuonVtxPair_pt, ScoutingMuonVtxPair_mass, ScoutingMuonVtxPair_y)')
 
+  d = d.Define("ScoutingMuonVtx_impactParametrs", "computeImpactParameters(ScoutingMuonVtx_trk_vx, ScoutingMuonVtx_trk_vy, ScoutingMuonVtx_trk_dz, ScoutingPrimaryVertex_x, ScoutingPrimaryVertex_y, ScoutingPrimaryVertex_z, ScoutingMuonVtx_trk_vx, ScoutingMuonVtx_trk_vy, ScoutingMuonVtx_trk_vz)")
+  d = d.Define("ScoutingMuonVtx_dxy", "ScoutingMuonVtx_impactParametrs[0]")
+  d = d.Define("ScoutingMuonVtx_dz", "ScoutingMuonVtx_impactParametrs[1]")
+
+
   # d = d.Define("dimuonKinematics", 'dimuonKinematics(ScoutingMuonVtx_pt, ScoutingMuonVtx_eta, ScoutingMuonVtx_phi)')
   # d = d.Define("ScoutingMuonVtxPair_pt", "dimuonKinematics[0]")
   # d = d.Define("ScoutingMuonVtxPair_eta", "dimuonKinematics[1]")
   # d = d.Define("ScoutingMuonVtxPair_phi", "dimuonKinematics[2]")
   # d = d.Define("ScoutingMuonVtxPair_mass", "dimuonKinematics[3]")
   # d = d.Define("ScoutingMuonVtxPair_Y", "dimuonKinematics[4]")
-  d = d.Define("ScoutingMuonVtxPair_deltaxy", "ScoutingMuonVtx_trk_dxy[0] - ScoutingMuonVtx_trk_dxy[1]")
-  d = d.Define("ScoutingMuonVtxPair_deltaz", "ScoutingMuonVtx_trk_dz[0] - ScoutingMuonVtx_trk_dz[1]")
+  d = d.Define("ScoutingMuonVtxPair_deltaxy", "ScoutingMuonVtx_dxy[0] - ScoutingMuonVtx_dxy[1]")
+  d = d.Define("ScoutingMuonVtxPair_deltaz", "ScoutingMuonVtx_dz[0] - ScoutingMuonVtx_dz[1]")
 
   d = d.Define("TruePFJet_ind", 'TruePFJet(ScoutingPFJet_pt, ScoutingPFJet_eta, ScoutingPFJet_phi, ScoutingMuonVtx_eta, ScoutingMuonVtx_phi)')
   d = d.Define("TruePFJet_pt", 'ScoutingPFJet_pt[TruePFJet_ind]')
@@ -126,7 +132,7 @@ def main(executor):
   d = d.Define("TruePFJetRecluster_HT", 'Sum(TruePFJetRecluster_pt)')
 
   # Filter the events
-  d = d.Filter("DST_PFScouting_SingleMuon", "HLT Scouting Stream")  #2024
+  d = d.Filter("DST_PFScouting_DoubleMuon", "HLT Scouting Stream")  #2024
   # d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream") #2022
   d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
   d = d.Filter("nScoutingMuonVtx == 2")
@@ -140,8 +146,8 @@ def main(executor):
       .Filter('ScoutingMuonVtxSub_pt/ScoutingMuonVtxPair_mass > 0.45', "leptons are decay products of the original boson")
 
   # d = d.Filter('All(rEcalIso < 0.4)', "Muons are isolated in the ECAL: ")
-  # d = d.Filter("All(abs(ScoutingMuonVtx_trk_dxy) < 0.2)", "Muons are coming from reco PV ")
-  # d = d.Filter("All(abs(ScoutingMuonVtx_trk_dz) < 15)", "Muons are coming from reco PV ")
+  d = d.Filter("All(abs(ScoutingMuonVtx_dxy) < 0.2)", "Muons are coming from main PV ")
+  d = d.Filter("All(abs(ScoutingMuonVtx_dz) < 0.5)", "Muons are coming from main PV ")
   # d = d.Filter("ScoutingMuonVtx_deltaR > 2 && ScoutingMuonVtx_deltaR < 4", " leptons are not too close or too separated")
 
   # Separate samples and add them to the sample list

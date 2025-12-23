@@ -8,7 +8,7 @@ ROOT.gStyle.SetOptStat(0)
 import cmsstyle as CMS
 CMS.setCMSStyle()
 CMS.SetExtraText("Preliminary")
-CMS.SetLumi(11.417)
+CMS.SetLumi(11.42)
 CMS.SetEnergy(13.6)
 
 # Declare labels
@@ -22,6 +22,7 @@ labels = {
   "ScoutingMuonVtx_deltaPhi" : "#Delta #phi",
   "ScoutingMuonVtx_deltaEta" : "#Delta eta",
   "ScoutingMuonVtx_deltaR" : "#Delta R",
+  "ScoutingMuonVtx_cosThetaCS" : "cos(#theta_{CS})",
 
   "ScoutingMuonVtxPair_Pt" : "p_{T}^{#mu#mu} / GeV",
   "ScoutingMuonVtxPair_PtLow" : "p_{T}^{#mu#mu} / GeV",
@@ -30,28 +31,36 @@ labels = {
   "ScoutingMuonVtxPair_massZ" : "M^{#mu#mu} / GeV",
   "ScoutingMuonVtxPair_eta"   : "#eta^{#mu#mu}",
 
-  # "trkIsolation" : "I^{#mu} / GeV",
-  # "ECalIsolation" : "I^{#mu} / GeV",
-  # "HCalIsolation" : "I^{#mu} / GeV",
-  # "relTrkIso"     : "I^{#mu}/p^{#mu}",
-  # "relEcalIso"    : "I^{#mu}/p^{#mu}",
-  # "relHcalIso"     : "I^{#mu}/p^{#mu}",
-  # "TruePFJet_HT" : "H_{T} / GeV",
-  # "TruePFJet_pt" : "p_{T} / GeV",
-  # "nTruePFJet" : "N_{PFJet}",
-  # "nScoutingPFJet" : "N_{PFJet}",
-  # "nScoutingPrimaryVertex" : "N_{Vtx}",
-  # "PFIso"     : "I^{#mu} / GeV",
-  # "relPFIso"     : "I^{#mu}/p^{#mu}",
-  # "Strip_Hit" : "# Strip Hit",
-  # "Pixel_Hit" : "# Pixel Hit",
-  # "Tracker_Hit" : "# Tracker Layer",
-  # "MuonChamber_Hit" : "# Muon Chamber Hit",
-  # "MatchedStation" : "# Matched Station",
+  "trkIsolation" : "I^{#mu} / GeV",
+  "ECalIsolation" : "I^{#mu} / GeV",
+  "HCalIsolation" : "I^{#mu} / GeV",
+  "relTrkIso"     : "I^{#mu}/p^{#mu}",
+  "relECalIso"    : "I^{#mu}/p^{#mu}",
+  "relHCalIso"     : "I^{#mu}/p^{#mu}",
+  
+  "TruePFJet_HT" : "H_{T} / GeV",
+  "TruePFJet_pt" : "p_{T} / GeV",
+  "nTruePFJet" : "N_{PFJet}",
+  "nScoutingPFJet" : "N_{PFJet}",
+  "TruePFJetRecluster_HT" : "H_{T} / GeV",
+  "TruePFJetRecluster_pt" : "p_{T} / GeV",
+  "nTruePFJetRecluster" : "N_{PFJetRecluster}",
+  "nScoutingPFJetRecluster" : "N_{PFJetRecluster}",
 
-  "ScoutingMuonVtx_trk_dxy" : "d_{xy} [cm]",
-  "ScoutingMuonVtx_trk_dxy_short" : "d_{xy} [cm]",
-  "ScoutingMuonVtx_trk_dz" : "d_{z} [cm]",
+  "nScoutingPrimaryVertex" : "N_{Vtx}",
+  "ScoutingPrimaryVertex_tracksSize" : "N_{tracks}/Vtx",
+  "Strip_Hit" : "# Strip Hit",
+  "Pixel_Hit" : "# Pixel Hit",
+  "Tracker_Hit" : "# Tracker Layer",
+  "MuonChamber_Hit" : "# Muon Chamber Hit",
+  "MatchedStation" : "# Matched Station",
+
+  "ScoutingMuonVtx_dxy" : "d_{xy} [cm]",
+  "ScoutingMuonVtx_dxy_short" : "d_{xy} [cm]",
+  "ScoutingMuonVtx_dz" : "d_{z} [cm]",
+  "ScoutingMuonVtx_dz_short" : "d_{z} [cm]",
+  "ScoutingMET_pt" : "p_{T}^{MET}",
+
   }
 
 # Set colors

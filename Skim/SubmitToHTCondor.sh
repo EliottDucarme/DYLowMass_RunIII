@@ -90,7 +90,7 @@ elif [[ $year == 2022 && $dataset == "QCD" ]]; then
 elif [[ $year == 2024 && $dataset == "Data" ]]; then
    if ! [[ "$era" =~ ^(I) ]]; then
       echo -e "${RED}Error : Invalid era for year 2024!${NC}"
-      echo -e "${RED}2024 eras : B C D E F G${NC}"
+      echo -e "${RED}2024 eras : I I_LowPU ${NC}"
       Help
       exit 1
    fi
@@ -152,7 +152,7 @@ then
     mkdir -p $output
 else
     echo
-    echo -e "${RED}The directory $output alreaDYto2Mu exists, please give another Output name!${NC}"
+    echo -e "${RED}The directory $output already exists, please give another Output name!${NC}"
     echo
     exit 1
 fi

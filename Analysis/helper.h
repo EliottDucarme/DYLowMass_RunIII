@@ -109,15 +109,16 @@ RVec<int> TruePFJet(RVec<float_t> Jet_pt, RVec<float_t> Jet_eta, RVec<float_t> J
 
 Float_t Sum(RVec<Float_t> col){
   Float_t sum = 0;
-  for(int i; i < col.size(); i++){
+  Float_t n = col.size();
+  for (int i=0; i < n; i++){
     sum += col[i];
+    // std::cout << sum << " column value :" << col[i] << std::endl;
   }
   return sum;
-}
+};
 
 Float_t cosThetaCS(RVec<Float_t> pt_mu, RVec<Float_t> eta_mu, RVec<Float_t> phi_mu , RVec<Float_t> m_mu, 
-                    Float_t pt_pair, Float_t mass_pair, Float_t rapidity_pair)
-{
+                    Float_t pt_pair, Float_t mass_pair, Float_t rapidity_pair){
   using PtEtaPhiMVectorD = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float>>;
 
   PtEtaPhiMVectorD mu1(pt_mu[0], eta_mu[0], phi_mu[0], m_mu[0]);
