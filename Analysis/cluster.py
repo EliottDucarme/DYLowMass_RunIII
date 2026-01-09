@@ -7,28 +7,29 @@ from dask_jobqueue import HTCondorCluster
 def create_connection():
   cluster = HTCondorCluster(
         cores=1,
-        memory='1536MB',
-        disk='1000MB',     
+        memory='2000MB',
+        disk='2000MB',     
         local_directory='$TMPDIR',
-        death_timeout = '600',
+        death_timeout = '60',
         nanny = False,
         log_directory = "/user/educarme/DYLowMass_RunIII/Analysis/dask_jobLog",
-        scheduler_options={'dashboard_address': ':7249',
-                            'host': socket.gethostname()},
+        scheduler_options={'dashboard_address': ':7249'},
         job_script_prologue=[
           'source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_108 x86_64-el9-gcc15-opt'
         ],
-        name="RDF_DaskJobQueue"
+        name="worker",
+        job_extra_directives={'batch_name' : "RDF_DaskJob"}
   )
+  cluster
+  cluster.scale(jobs=20)
   client = Client(cluster)
-  cluster.scale(20)
+  client
   # print(cluster.job_script())
   # logger = logging.getLogger(__name__)
   # logger.setLevel(logging.DEBUG)
   return client
 
-if __name__ == "__main__":
- 
+def simpleCompute():
     #print( "Create the connection to the mock Dask cluster on the local machine" )
     connection = create_connection()
     connection 
@@ -48,3 +49,5 @@ if __name__ == "__main__":
     df = df.Define("ASimpleVector", 'simple_vector()')
     print(df.Sum("ASimpleVector").GetValue())
  
+if __name__ == "__main__" :
+  simpleCompute()

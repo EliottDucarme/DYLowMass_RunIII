@@ -17,11 +17,13 @@ ranges = {
   "ScoutingMuonVtxPair_deltaz" : ("ScoutingMuonVtxPair_deltaz", default_nbins, -2.0, 2.0),
 
   "ScoutingMuonVtx_dxy" : ("ScoutingMuonVtx_dxy", default_nbins, -0.5, 0.5),
-  "ScoutingMuonVtx_dxy_short" : ("ScoutingMuonVtx_dxy", default_nbins, -0.2, 0.2),
-  "ScoutingMuonVtx_dz" : ("ScoutingMuonVtx_dz", default_nbins, -10.0, 10.0),
-  "ScoutingMuonVtx_dz_short" : ("ScoutingMuonVtx_dz", default_nbins, -0.5, 0.5),
+  "ScoutingMuonVtx_dxy_short" : ("ScoutingMuonVtx_dxy", default_nbins, -0.1, 0.1),
+  "ScoutingMuonVtx_trk_dxyError" : ("ScoutingMuonVtx_trk_dxyError", default_nbins, 0, 0.2),
+  "ScoutingMuonVtx_dz" : ("ScoutingMuonVtx_dz", default_nbins, -1.0, 1.0),
+  "ScoutingMuonVtx_dz_short" : ("ScoutingMuonVtx_dz", default_nbins, -0.2, 0.2),
+  "ScoutingMuonVtx_trk_dzError" : ("ScoutingMuonVtx_trk_dzError", default_nbins, 0, 0.2),
 
-  "ScoutingMuonVtxLead_pt" : ("ScoutingMuonVtxSub_pt", default_nbins, 5.0, 105.0),
+  "ScoutingMuonVtxLead_pt" : ("ScoutingMuonVtxLead_pt", default_nbins, 5.0, 105.0),
   "ScoutingMuonVtxSub_pt" : ("ScoutingMuonVtxSub_pt", default_nbins, 5.0, 105.0),
   "ScoutingMuonVtxSub_eta" : ("ScoutingMuonVtxSub_eta", default_nbins, -2.5, 2.5),
   "ScoutingMuonVtxLead_eta" : ("ScoutingMuonVtxLead_eta", default_nbins, -2.5, 2.5),
@@ -76,7 +78,7 @@ def main(executor):
 
   if (executor == "cluster") : 
     client = create_connection()
-    d = ROOT.RDF.Experimental.FromSpec("samples_2024.json", executor=client, npartitions=60)
+    d = ROOT.RDF.Experimental.FromSpec("samples_2024.json", executor=client, npartitions=100)
     ROOT.RDF.Distributed.DistributeHeaders("helper.h")
   elif (executor == "local") : 
     ROOT.gInterpreter.Declare('#include "helper.h"') 
@@ -134,20 +136,18 @@ def main(executor):
   # Filter the events
   d = d.Filter("DST_PFScouting_DoubleMuon", "HLT Scouting Stream")  #2024
   # d = d.Filter("DST_Run3_PFScoutingPixelTracking", "HLT Scouting Stream") #2022
-  d = d.Filter("L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7", "L1 fired")
+  d = d.Filter("L1_DoubleMu8_SQ", "L1 fired")
   d = d.Filter("nScoutingMuonVtx == 2")
-  d = d.Filter("ScoutingMuonVtx_charge[0]*ScoutingMuonVtx_charge[1] == -1", "Opposite charge")
   d = d.Filter("abs(ScoutingMuonVtx_eta[0]) < 2.0 && abs(ScoutingMuonVtx_eta[1]) < 2.0",\
                 "eta-cut")
   d = d.Filter("ScoutingMuonVtx_pt[0] > 5.0 && ScoutingMuonVtx_pt[1] > 5.0", "pt-cut")
-  d = d.Filter('All(rTrkIso < 0.03)', "Muons are isolated in the tracker: ")
   d = d.Filter("All(ScoutingMuonVtx_trk_chi2/ScoutingMuonVtx_trk_ndof < 10)", "Track of the muons are nicely reconstructed")
   d = d.Filter('ScoutingMuonVtxSub_pt/ScoutingMuonVtxPair_mass > 0.25')\
       .Filter('ScoutingMuonVtxSub_pt/ScoutingMuonVtxPair_mass > 0.45', "leptons are decay products of the original boson")
 
   # d = d.Filter('All(rEcalIso < 0.4)', "Muons are isolated in the ECAL: ")
-  d = d.Filter("All(abs(ScoutingMuonVtx_dxy) < 0.2)", "Muons are coming from main PV ")
-  d = d.Filter("All(abs(ScoutingMuonVtx_dz) < 0.5)", "Muons are coming from main PV ")
+  d = d.Filter("All(abs(ScoutingMuonVtx_dxy) < 0.02)", "Muons are coming from main PV ")
+  d = d.Filter("All(abs(ScoutingMuonVtx_dz) < 0.03)", "Muons are coming from main PV ")
   # d = d.Filter("ScoutingMuonVtx_deltaR > 2 && ScoutingMuonVtx_deltaR < 4", " leptons are not too close or too separated")
 
   # Separate samples and add them to the sample list
@@ -171,12 +171,21 @@ def main(executor):
 
   for df_label, df in samples :
     # Separate mass windows
+    df_SS = df.Filter("ScoutingMuonVtx_charge[0]*ScoutingMuonVtx_charge[1] == 1", "Same charge")
+    df_SS_iso = df_SS.Filter('All(rTrkIso < 0.03)')
+    df_SS_niso = df_SS.Filter('All(rTrkIso > 0.03)')
+    df = df.Filter("ScoutingMuonVtx_charge[0]*ScoutingMuonVtx_charge[1] == -1", "Opposite charge")
+    df = df.Filter('All(rTrkIso < 0.03)', "Muons are isolated in the tracker: ")
+    df_OS_niso = df.Filter('All(rTrkIso > 0.03)', "Muons are isolated in the tracker: ")
     d_ups = df.Filter("ScoutingMuonVtxPair_mass < 20 && ScoutingMuonVtxPair_mass > 10", "Under Upsilon influence")
     d_QCD = df.Filter("ScoutingMuonVtxPair_mass < 50 && ScoutingMuonVtxPair_mass > 20", "Bulk")
     d_W = df.Filter("ScoutingMuonVtxPair_mass > 50 && ScoutingMuonVtxPair_mass < 76", "Under W influence")
     d_Z = df.Filter("ScoutingMuonVtxPair_mass > 76 && ScoutingMuonVtxPair_mass < 106", "Under Z influence")
     df_massWindows = [
               ("Incl", df),
+              ("Incl_OS_niso", df_OS_niso),
+              ("Incl_SS_iso", df_SS_iso),
+              ("Incl_SS_niso", df_SS_niso),
               ("Upsilon", d_ups),
               ("QCD", d_QCD),
               ("W", d_W),
