@@ -178,7 +178,11 @@ def main(var, mass, scale):
 
   # Draw
   c.cd(1)
-  stack = ROOT.THStack("", "")
+  samples = [(dyTau, "#gamma^{*}/Z -> #tau #tau", 'f'), 
+              (tt, "t#bar{t} #rightarrow 2l2#nu", 'f'), 
+              (qcd, "QCD, p^{#mu}_{T} > 5 GeV", 'f'),
+              (dyMu, "#gamma^{*}/Z -> #mu #mu", 'f')]
+  stack = CMS.buildTHStack([dyTau, tt, qcd, dyMu], [CMS.p6.kBlue,  CMS.p6.kYellow, CMS.p6.kViolet, CMS.p6.kRed], "STACK", LineColor=-1, FillColor=-1)
   ROOT.gPad.SetLogy()
   for xobj in samples:
       legend.AddEntry(*xobj)
