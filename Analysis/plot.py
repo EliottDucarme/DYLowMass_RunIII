@@ -180,13 +180,10 @@ def main(var, mass, scale):
   c.cd(1)
   stack = ROOT.THStack("", "")
   ROOT.gPad.SetLogy()
-  samples = {
-              "#gamma^{*}/Z -> #tau #tau"  : dyTau,
-              "t#bar{t} #rightarrow 2l2#nu" : tt,
-              "#gamma^{*}/Z -> #mu #mu"  : dyMu,
-              "QCD, p^{#mu}_{T} > 5 GeV"  : qcd
-              }
-  CMS.cmsDrawStack(stack, legend, samples, data)
+  for xobj in samples:
+      legend.AddEntry(*xobj)
+  CMS.cmsObjectDraw(stack, "HIST")
+  CMS.cmsDraw(data, "SAME APE")
   data.SetStats(0)
   ROOT.gPad.RedrawAxis()
 
