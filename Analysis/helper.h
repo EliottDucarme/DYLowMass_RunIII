@@ -30,6 +30,9 @@ RVec<int> findGenMuons(RVec<int> Ids, RVec<int> status, RVec<int> flags)
   int n = Ids.size();
   RVec<int> genMu_indices;
   for (int i=0; i < n; i++){
+    // Initialize the particle has not being a muon
+    // Changed to a muon when all condition checked
+    genMu_indices.push_back(0);
     // Is a gen-level muon
     if ( !(std::abs(Ids[i]) == 13) ) continue;
 
@@ -44,7 +47,7 @@ RVec<int> findGenMuons(RVec<int> Ids, RVec<int> status, RVec<int> flags)
     if (!(flags[i] & 1 )) continue;
     if (!(flags[i] & 256)) continue;
     if (!(flags[i] & 8192)) continue;
-    genMu_indices.push_back(i);
+    genMu_indices[i] = 1;
   }
 
   return genMu_indices;
