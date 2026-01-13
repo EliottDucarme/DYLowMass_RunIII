@@ -112,8 +112,23 @@ def makeGraphs(executor, study):
       displacementStudy(samples_skimmed)
     elif (study == "iso") :
       isoStudy(samples_skimmed)
-  elif (study == "L1s") :
-    l1Study(samples)
+  elif (study == "MC_L1") :
+    # use gen-value to look at the phase space
+    for l_s, s in samples :
+      s = s.Define("GenMuon_ind", "findGenMuons(GenPart_pdgId, GenPart_status,GenPart_statusFlags)")
+      s = s.Define("GenMuon_pt", "GenPart_pt[GenMuon_ind]")
+      s = s.Define("GenMuon_eta", "GenPart_eta[GenMuon_ind]")
+      s = s.Define("GenMuon_phi", "GenPart_phi[GenMuon_ind]")
+
+      s = s.Filter("GenMuon_pt.size() == 2")
+      s = s.Filter("All(GenMuon_pt > 5.0)")
+      s = s.Filter("All(GenMuon_eta < 2.0)")
+      samples_skimmed.append((l_s, s))
+    l1Study(samples_skimmed)
+  else : 
+    print("Wrong study name, try : MC_L1, dis or iso")
+
+  if (executor == 'cluster') : client.close(), cluster.close()
 
 def l1Study(samples) :
   hists = {}
