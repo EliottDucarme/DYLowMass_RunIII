@@ -27,7 +27,7 @@ def create_connection():
   # print(cluster.job_script())
   # logger = logging.getLogger(__name__)
   # logger.setLevel(logging.DEBUG)
-  return client
+  return client, cluster
 
 def simpleCompute():
     #print( "Create the connection to the mock Dask cluster on the local machine" )
