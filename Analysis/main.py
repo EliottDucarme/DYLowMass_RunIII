@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import sys
 import ROOT
-from cluster import create_connection
+from dask.distributed import Client
+from dask_jobqueue import HTCondorCluster
 
 
 # Declaration of ranges for each histogram type
